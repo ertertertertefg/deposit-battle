@@ -609,3 +609,21 @@ button:active {
     color: var(--text-muted);
     min-height: 20px;
 }
+
+/* ═══════════════════════════════════════ */
+/* ГРАФИКИ */
+/* ═══════════════════════════════════════ */
+
+.chart-container {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--bg-primary);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    height: 200px;
+    position: relative;
+}
+
+.chart-container canvas {
+    max-height: 180px;
+}

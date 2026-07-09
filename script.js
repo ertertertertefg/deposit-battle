@@ -22,6 +22,10 @@ let tradeCount = 0;
 let cryptoHoldDays = 0;
 let hasCrypto = false;
 
+let cryptoHistory = [];
+let stockHistory = [];
+const MAX_HISTORY = 30;
+
 let userId = localStorage.getItem("depositBattleUserId");
 
 if (!userId) {
@@ -142,6 +146,9 @@ const refreshLeaderboardBtn = document.getElementById("refreshLeaderboard");
 const workButton = document.getElementById("workButton");
 const workTimer = document.getElementById("workTimer");
 
+let cryptoChart = null;
+let stockChart = null;
+
 if (userNameText) userNameText.textContent = "👤 " + userName;
 
 function addNews(text) {
@@ -158,6 +165,157 @@ function updateScreen() {
     if (cryptoPriceText) cryptoPriceText.textContent = "💰 Цена: " + cryptoPrice.toLocaleString("ru-RU") + " ₽ за 1 ₿";
     if (stocksText) stocksText.textContent = "📈 Акции: " + stocks + " шт.";
     if (stockPriceText) stockPriceText.textContent = "💰 Цена: " + stockPrice.toLocaleString("ru-RU") + " ₽ за 1 акцию";
+}
+
+function initHistory() {
+    while (cryptoHistory.length < MAX_HISTORY) {
+        cryptoHistory.push(cryptoPrice);
+    }
+    while (stockHistory.length < MAX_HISTORY) {
+        stockHistory.push(stockPrice);
+    }
+}
+
+function updateHistory() {
+    cryptoHistory.push(cryptoPrice);
+    if (cryptoHistory.length > MAX_HISTORY) cryptoHistory.shift();
+    
+    stockHistory.push(stockPrice);
+    if (stockHistory.length > MAX_HISTORY) stockHistory.shift();
+}
+
+function getChartLabels() {
+    const labels = [];
+    for (let i = 1; i <= MAX_HISTORY; i++) {
+        labels.push('День ' + (day - MAX_HISTORY + i));
+    }
+    return labels;
+}
+
+function initCharts() {
+    const cryptoCtx = document.getElementById('cryptoChart');
+    const stockCtx = document.getElementById('stockChart');
+    
+    if (!cryptoCtx || !stockCtx) return;
+    
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(10, 26, 31, 0.9)',
+                titleColor: '#c8e0e4',
+                bodyColor: '#6a9a9e',
+                borderColor: '#1a3a42',
+                borderWidth: 1,
+                displayColors: false,
+                callbacks: {
+                    label: function(context) {
+                        return context.parsed.y.toLocaleString('ru-RU') + ' ₽';
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                display: false,
+                grid: { display: false }
+            },
+            y: {
+                display: true,
+                grid: {
+                    color: 'rgba(26, 58, 66, 0.3)',
+                    drawBorder: false
+                },
+                ticks: {
+                    color: '#3d6b70',
+                    font: { size: 10 },
+                    callback: function(value) {
+                        return (value / 1000).toFixed(0) + 'k';
+                    }
+                }
+            }
+        },
+        elements: {
+            point: { radius: 0, hoverRadius: 4 },
+            line: { tension: 0.4, borderWidth: 2 }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'index'
+        }
+    };
+    
+    cryptoChart = new Chart(cryptoCtx, {
+        type: 'line',
+        data: {
+            labels: getChartLabels(),
+            datasets: [{
+                label: 'Крипта',
+                data: cryptoHistory,
+                borderColor: '#3db8c4',
+                backgroundColor: 'rgba(61, 184, 196, 0.1)',
+                fill: true,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                title: {
+                    display: true,
+                    text: '₿ Крипта — 30 дней',
+                    color: '#6a9a9e',
+                    font: { size: 12, weight: '600' },
+                    padding: { bottom: 10 }
+                }
+            }
+        }
+    });
+    
+    stockChart = new Chart(stockCtx, {
+        type: 'line',
+        data: {
+            labels: getChartLabels(),
+            datasets: [{
+                label: 'Акции',
+                data: stockHistory,
+                borderColor: '#2a8a9a',
+                backgroundColor: 'rgba(42, 138, 154, 0.1)',
+                fill: true,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                title: {
+                    display: true,
+                    text: '📈 Акции — 30 дней',
+                    color: '#6a9a9e',
+                    font: { size: 12, weight: '600' },
+                    padding: { bottom: 10 }
+                }
+            }
+        }
+    });
+}
+
+function updateCharts() {
+    if (!cryptoChart || !stockChart) return;
+    
+    const labels = getChartLabels();
+    
+    cryptoChart.data.labels = labels;
+    cryptoChart.data.datasets[0].data = cryptoHistory;
+    cryptoChart.update('none');
+    
+    stockChart.data.labels = labels;
+    stockChart.data.datasets[0].data = stockHistory;
+    stockChart.update('none');
 }
 
 function checkDailyBonus() {
@@ -299,14 +457,20 @@ async function loadProgress() {
         loginStreak = data.loginStreak || 0;
         tradeCount = data.tradeCount || 0;
         cryptoHoldDays = data.cryptoHoldDays || 0;
+        cryptoHistory = data.cryptoHistory || [];
+        stockHistory = data.stockHistory || [];
 
+        initHistory();
         updateScreen();
+        initCharts();
         checkDailyBonus();
         checkAchievements();
         addNews("✅ Прогресс загружен");
     } catch (error) {
         console.error(error);
         addNews("⚠️ Не удалось загрузить прогресс");
+        initHistory();
+        initCharts();
     }
 }
 
@@ -330,7 +494,9 @@ async function saveProgress() {
                 lastLoginDate,
                 loginStreak,
                 tradeCount,
-                cryptoHoldDays
+                cryptoHoldDays,
+                cryptoHistory,
+                stockHistory
             })
         });
     } catch (error) {
@@ -599,7 +765,9 @@ if (nextDayButton) {
             cryptoHoldDays++;
         }
 
+        updateHistory();
         updateScreen();
+        updateCharts();
 
         let newsText = event.text + "<br>💸 Доход по депозиту: " + income.toLocaleString("ru-RU") + " ₽";
         
@@ -650,8 +818,12 @@ if (restartButton) {
         tradeCount = 0;
         cryptoHoldDays = 0;
         hasCrypto = false;
+        cryptoHistory = [];
+        stockHistory = [];
 
+        initHistory();
         updateScreen();
+        updateCharts();
         addNews("🔄 Игра начата заново! Удачи!");
         await saveProgress();
 
@@ -666,4 +838,3 @@ if (refreshLeaderboardBtn) {
 }
 
 loadProgress();
-updateScreen();

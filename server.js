@@ -51,7 +51,9 @@ app.get("/api/save/:userId", (req, res) => {
         lastLoginDate: null,
         loginStreak: 0,
         tradeCount: 0,
-        cryptoHoldDays: 0
+        cryptoHoldDays: 0,
+        cryptoHistory: [],
+        stockHistory: []
     };
     writeSaves(saves);
 
@@ -62,15 +64,15 @@ app.post("/api/save/:userId", (req, res) => {
     const saves = readSaves();
     const userId = req.params.userId;
 
-    const { balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice, userName, achievements, lastLoginDate, loginStreak, tradeCount, cryptoHoldDays } = req.body;
+    const { balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice, userName, achievements, lastLoginDate, loginStreak, tradeCount, cryptoHoldDays, cryptoHistory, stockHistory } = req.body;
 
     saves[userId] = {
-        balance: Number(balance) || 100000,
+        balance: Number(balance) || 35000,
         deposit: Number(deposit) || 0,
         day: Number(day) || 1,
         crypto: Number(crypto) || 0,
         stocks: Number(stocks) || 0,
-        cryptoPrice: Number(cryptoPrice) || 50000,
+        cryptoPrice: Number(cryptoPrice) || 23000,
         stockPrice: Number(stockPrice) || 1000,
         userName: userName || "Игрок",
         lastActive: Date.now(),
@@ -78,7 +80,9 @@ app.post("/api/save/:userId", (req, res) => {
         lastLoginDate: lastLoginDate || null,
         loginStreak: loginStreak || 0,
         tradeCount: Number(tradeCount) || 0,
-        cryptoHoldDays: Number(cryptoHoldDays) || 0
+        cryptoHoldDays: Number(cryptoHoldDays) || 0,
+        cryptoHistory: cryptoHistory || [],
+        stockHistory: stockHistory || []
     };
 
     writeSaves(saves);
@@ -95,10 +99,10 @@ app.get("/api/leaderboard", (req, res) => {
     const leaders = Object.entries(saves)
         .filter(([id, data]) => data.day > 1)
         .map(([id, data]) => {
-            const cryptoValue = (data.crypto || 0) * (data.cryptoPrice || 50000);
+            const cryptoValue = (data.crypto || 0) * (data.cryptoPrice || 23000);
             const stockValue = (data.stocks || 0) * (data.stockPrice || 1000);
             const totalAssets = (data.balance || 0) + (data.deposit || 0) + cryptoValue + stockValue;
-            const profit = totalAssets - 100000;
+            const profit = totalAssets - 35000;
             
             return {
                 userId: id,
