@@ -2,54 +2,37 @@ let balance = 100000;
 let deposit = 0;
 let day = 1;
 
-// Криптовалюта и акции
 let crypto = 0;
 let stocks = 0;
 let cryptoPrice = 50000;
 let stockPrice = 1000;
 
-// 24 события: 5+5 крипта, 5+5 акции, 2+2 общие
 const events = [
-    // ═══ КРИПТОВАЛЮТА (5 положительных) ═══
     { text: "🚀 Крипта взлетела на 25%!", crypto: 1.25, stock: 1.0 },
     { text: "🌟 Новый блокчейн запущен", crypto: 1.50, stock: 1.0 },
     { text: "💎 Институционалы вошли в крипту", crypto: 1.35, stock: 1.0 },
     { text: "🌙 Маск твитнул про Doge", crypto: 1.15, stock: 1.0 },
     { text: "🔥 ETF одобрили биткоин", crypto: 1.40, stock: 1.0 },
-    
-    // ═══ КРИПТОВАЛЮТА (5 отрицательных) ═══
     { text: "📉 Крипта обвалилась на 30%", crypto: 0.70, stock: 1.0 },
     { text: "🏛️ SEC запретила крипту", crypto: 0.50, stock: 1.0 },
     { text: "💣 Хакнули биржу", crypto: 0.60, stock: 1.0 },
     { text: "⚠️ Кит продал всё", crypto: 0.65, stock: 1.0 },
     { text: "🚫 Китай забанил майнинг", crypto: 0.55, stock: 1.0 },
-    
-    // ═══ АКЦИИ (5 положительных) ═══
     { text: "📈 Акции Tesla взлетели", crypto: 1.0, stock: 1.20 },
     { text: "🤝 Слияние гигантов", crypto: 1.0, stock: 1.30 },
     { text: "🏆 Компания выиграла тендер", crypto: 1.0, stock: 1.25 },
     { text: "💰 Рекордная прибыль квартала", crypto: 1.0, stock: 1.35 },
     { text: "🚀 IPO прошло успешно", crypto: 1.0, stock: 1.45 },
-    
-    // ═══ АКЦИИ (5 отрицательных) ═══
     { text: "📉 Акции упали на 15%", crypto: 1.0, stock: 0.85 },
     { text: "🏢 Компания обанкротилась", crypto: 1.0, stock: 0.40 },
     { text: "📰 Скандал с CEO", crypto: 1.0, stock: 0.75 },
     { text: "🔥 Регулирование рынка", crypto: 1.0, stock: 0.90 },
     { text: "⚡ Завод сгорел", crypto: 1.0, stock: 0.55 },
-    
-    // ═══ ОБЩИЕ (2 положительных) ═══
     { text: "🌍 Мировой экономический бум", crypto: 1.15, stock: 1.15 },
     { text: "🎉 Центробанки снизили ставки", crypto: 1.20, stock: 1.20 },
-    
-    // ═══ ОБЩИЕ (2 отрицательных) ═══
     { text: "💥 Глобальный кризис", crypto: 0.80, stock: 0.80 },
     { text: "🌪️ Война началась", crypto: 0.70, stock: 0.70 }
 ];
-
-// ═══════════════════════════════════════
-// ВКЛАДКИ
-// ═══════════════════════════════════════
 
 function showTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => {
@@ -63,10 +46,6 @@ function showTab(tabName) {
     document.getElementById('tab-' + tabName).classList.add('active');
     event.target.classList.add('active');
 }
-
-// ═══════════════════════════════════════
-// TELEGRAM WEBAPP
-// ═══════════════════════════════════════
 
 const tg = window.Telegram?.WebApp;
 
@@ -91,10 +70,6 @@ if (tg) {
     });
 }
 
-// ═══════════════════════════════════════
-// ЭЛЕМЕНТЫ
-// ═══════════════════════════════════════
-
 const money = document.getElementById("money");
 const depositText = document.getElementById("deposit");
 const depositButton = document.getElementById("depositButton");
@@ -116,6 +91,8 @@ const stockPriceText = document.getElementById("stockPrice");
 const stockInput = document.getElementById("stockInput");
 const buyStockButton = document.getElementById("buyStockButton");
 const sellStockButton = document.getElementById("sellStockButton");
+
+const refreshLeaderboardBtn = document.getElementById("refreshLeaderboard");
 
 if (userNameText) userNameText.textContent = "👤 " + userName;
 
@@ -169,7 +146,8 @@ async function saveProgress() {
                 crypto,
                 stocks,
                 cryptoPrice,
-                stockPrice
+                stockPrice,
+                userName: userName
             })
         });
     } catch (error) {
@@ -178,11 +156,48 @@ async function saveProgress() {
     }
 }
 
-// ═══════════════════════════════════════
-// ОБРАБОТЧИКИ КНОПОК
-// ═══════════════════════════════════════
+async function loadLeaderboard() {
+    const leaderboardList = document.getElementById("leaderboardList");
+    if (!leaderboardList) return;
+    
+    leaderboardList.innerHTML = '<div class="loading">Загрузка...</div>';
+    
+    try {
+        const response = await fetch("/api/leaderboard");
+        const leaders = await response.json();
+        
+        if (leaders.length === 0) {
+            leaderboardList.innerHTML = '<div class="empty">Пока никто не играл 😢</div>';
+            return;
+        }
+        
+        let html = '';
+        leaders.forEach((leader, index) => {
+            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '•';
+            const profitColor = leader.profit >= 0 ? 'profit-positive' : 'profit-negative';
+            const profitSign = leader.profit >= 0 ? '+' : '';
+            
+            html += `
+                <div class="leader-item">
+                    <div class="leader-rank">${medal} ${index + 1}</div>
+                    <div class="leader-info">
+                        <div class="leader-name">${leader.userName}</div>
+                        <div class="leader-days">📅 ${leader.day} дней</div>
+                    </div>
+                    <div class="leader-profit ${profitColor}">
+                        ${profitSign}${leader.profit.toLocaleString("ru-RU")} ₽
+                    </div>
+                </div>
+            `;
+        });
+        
+        leaderboardList.innerHTML = html;
+    } catch (error) {
+        console.error(error);
+        leaderboardList.innerHTML = '<div class="error">Ошибка загрузки 😢</div>';
+    }
+}
 
-// Положить на депозит
 if (depositButton) {
     depositButton.onclick = async function () {
         if (!depositInput) return;
@@ -204,7 +219,6 @@ if (depositButton) {
     };
 }
 
-// Снять с депозита
 if (withdrawButton) {
     withdrawButton.onclick = async function () {
         if (!depositInput) return;
@@ -226,7 +240,6 @@ if (withdrawButton) {
     };
 }
 
-// Купить крипту
 if (buyCryptoButton) {
     buyCryptoButton.onclick = async function () {
         if (!cryptoInput) return;
@@ -249,7 +262,6 @@ if (buyCryptoButton) {
     };
 }
 
-// Продать крипту
 if (sellCryptoButton) {
     sellCryptoButton.onclick = async function () {
         if (!cryptoInput) return;
@@ -272,7 +284,6 @@ if (sellCryptoButton) {
     };
 }
 
-// Купить акции
 if (buyStockButton) {
     buyStockButton.onclick = async function () {
         if (!stockInput) return;
@@ -295,7 +306,6 @@ if (buyStockButton) {
     };
 }
 
-// Продать акции
 if (sellStockButton) {
     sellStockButton.onclick = async function () {
         if (!stockInput) return;
@@ -318,7 +328,6 @@ if (sellStockButton) {
     };
 }
 
-// Следующий день (с кулдауном 3 секунды)
 let nextDayCooldown = false;
 
 if (nextDayButton) {
@@ -335,21 +344,17 @@ if (nextDayButton) {
 
         day++;
 
-        // Доход по депозиту
         const percent = 0.01;
         const income = Math.floor(deposit * percent);
         deposit += income;
 
-        // Случайное событие
         const event = events[Math.floor(Math.random() * events.length)];
 
-        // Применяем множители к ценам
         cryptoPrice = Math.max(1000, Math.floor(cryptoPrice * event.crypto));
         stockPrice = Math.max(50, Math.floor(stockPrice * event.stock));
 
         updateScreen();
 
-        // Формируем текст новостей
         let newsText = event.text + "<br>💸 Доход по депозиту: " + income.toLocaleString("ru-RU") + " ₽";
         
         if (event.crypto !== 1.0) {
@@ -377,6 +382,10 @@ if (nextDayButton) {
             nextDayButton.textContent = "Следующий день";
         }, 3000);
     };
+}
+
+if (refreshLeaderboardBtn) {
+    refreshLeaderboardBtn.onclick = loadLeaderboard;
 }
 
 loadProgress();

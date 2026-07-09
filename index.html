@@ -15,19 +15,17 @@
     </div>
 
     <div class="game">
-        <!-- Шапка -->
         <div class="card header-card">
             <h1>💰 Deposit Battle</h1>
             <p id="userName">Игрок</p>
         </div>
 
-        <!-- Вкладки -->
         <div class="tabs">
             <button class="tab-button active" onclick="showTab('profile')">👤 Профиль</button>
             <button class="tab-button" onclick="showTab('work')">💼 Работа</button>
+            <button class="tab-button" onclick="showTab('leaderboard'); loadLeaderboard();">🏆 Топ</button>
         </div>
 
-        <!-- ═══ ВКЛАДКА: ПРОФИЛЬ ═══ -->
         <div id="tab-profile" class="tab-content active">
             <div class="card">
                 <h2>Баланс</h2>
@@ -50,7 +48,6 @@
             </div>
         </div>
 
-        <!-- ═══ ВКЛАДКА: РАБОТА ═══ -->
         <div id="tab-work" class="tab-content">
             <div class="card">
                 <h2>Криптовалюта</h2>
@@ -75,7 +72,17 @@
             </div>
         </div>
 
-        <!-- Новости (всегда видны) -->
+        <div id="tab-leaderboard" class="tab-content">
+            <div class="card">
+                <h2>🏆 Топ 10 трейдеров</h2>
+                <p class="subtitle">Кто больше заработал на крипте и акциях</p>
+                <div id="leaderboardList" class="leaderboard-list">
+                    <div class="loading">Загрузка...</div>
+                </div>
+                <button id="refreshLeaderboard" class="refresh-btn">🔄 Обновить</button>
+            </div>
+        </div>
+
         <div class="card">
             <h2>Новости</h2>
             <div id="news">📰 Добро пожаловать в игру!</div>

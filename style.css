@@ -1,7 +1,3 @@
-/* ═══════════════════════════════════════ */
-/* ОБЩИЕ НАСТРОЙКИ */
-/* ═══════════════════════════════════════ */
-
 * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -24,16 +20,46 @@
 
 body {
     margin: 0;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(0, 210, 106, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(55, 66, 250, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(255, 165, 2, 0.03) 0%, transparent 50%),
+        linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
     color: var(--text-primary);
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+    position: relative;
 }
 
-/* ═══════════════════════════════════════ */
-/* КОНТЕЙНЕР */
-/* ═══════════════════════════════════════ */
+body::before {
+    content: '💰';
+    position: fixed;
+    top: 10%;
+    right: 5%;
+    font-size: 120px;
+    opacity: 0.03;
+    pointer-events: none;
+    animation: float 6s ease-in-out infinite;
+    z-index: 0;
+}
+
+body::after {
+    content: '₿';
+    position: fixed;
+    bottom: 15%;
+    left: 5%;
+    font-size: 100px;
+    opacity: 0.03;
+    pointer-events: none;
+    animation: float 8s ease-in-out infinite reverse;
+    z-index: 0;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
 
 .game {
     width: 100%;
@@ -41,11 +67,9 @@ body {
     margin: 0 auto;
     padding: 16px;
     padding-bottom: 90px;
+    position: relative;
+    z-index: 1;
 }
-
-/* ═══════════════════════════════════════ */
-/* ШАПКА */
-/* ═══════════════════════════════════════ */
 
 .header-card {
     background: linear-gradient(135deg, rgba(0, 210, 106, 0.2) 0%, rgba(55, 66, 250, 0.2) 100%);
@@ -91,10 +115,6 @@ body {
     z-index: 1;
 }
 
-/* ═══════════════════════════════════════ */
-/* КАРТОЧКИ */
-/* ═══════════════════════════════════════ */
-
 .card {
     background: var(--bg-card);
     backdrop-filter: blur(10px);
@@ -132,10 +152,6 @@ body {
     margin-bottom: 12px;
 }
 
-/* ═══════════════════════════════════════ */
-/* БАЛАНС */
-/* ═══════════════════════════════════════ */
-
 #money {
     font-size: 36px;
     font-weight: 800;
@@ -145,10 +161,6 @@ body {
     background-clip: text;
     text-shadow: 0 0 30px rgba(0, 210, 106, 0.3);
 }
-
-/* ═══════════════════════════════════════ */
-/* ДЕПОЗИТ, КРИПТА, АКЦИИ */
-/* ═══════════════════════════════════════ */
 
 #deposit,
 #crypto,
@@ -172,10 +184,6 @@ body {
     color: var(--accent-gold);
 }
 
-/* ═══════════════════════════════════════ */
-/* ПОЛЯ ВВОДА */
-/* ═══════════════════════════════════════ */
-
 input {
     width: 100%;
     padding: 16px;
@@ -198,10 +206,6 @@ input:focus {
 input::placeholder {
     color: var(--text-secondary);
 }
-
-/* ═══════════════════════════════════════ */
-/* КНОПКИ */
-/* ═══════════════════════════════════════ */
 
 button {
     width: 100%;
@@ -237,7 +241,6 @@ button:active {
     transform: scale(0.97);
 }
 
-/* Кнопка депозита */
 #depositButton {
     background: linear-gradient(135deg, var(--accent-green), #00b894);
     color: white;
@@ -249,7 +252,6 @@ button:active {
     transform: translateY(-2px);
 }
 
-/* Кнопка снятия */
 #withdrawButton {
     background: linear-gradient(135deg, var(--accent-red), #ff6b81);
     color: white;
@@ -261,7 +263,6 @@ button:active {
     transform: translateY(-2px);
 }
 
-/* Кнопка следующего дня */
 #nextDayButton {
     background: linear-gradient(135deg, var(--accent-blue), #5352ed);
     color: white;
@@ -275,7 +276,6 @@ button:active {
     transform: translateY(-2px);
 }
 
-/* Кнопки крипты и акций */
 #buyCryptoButton,
 #buyStockButton {
     background: linear-gradient(135deg, var(--accent-green), #00b894);
@@ -301,10 +301,6 @@ button:active {
     box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5);
     transform: translateY(-2px);
 }
-
-/* ═══════════════════════════════════════ */
-/* ВКЛАДКИ */
-/* ═══════════════════════════════════════ */
 
 .tabs {
     display: flex;
@@ -347,10 +343,6 @@ button:active {
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* ═══════════════════════════════════════ */
-/* СОДЕРЖИМОЕ ВКЛАДОК */
-/* ═══════════════════════════════════════ */
-
 .tab-content {
     display: none;
     animation: fadeIn 0.4s ease;
@@ -371,10 +363,6 @@ button:active {
     }
 }
 
-/* ═══════════════════════════════════════ */
-/* КНОПКИ В РЯД */
-/* ═══════════════════════════════════════ */
-
 .button-row {
     display: flex;
     gap: 12px;
@@ -383,10 +371,6 @@ button:active {
 .button-row button {
     flex: 1;
 }
-
-/* ═══════════════════════════════════════ */
-/* НОВОСТИ */
-/* ═══════════════════════════════════════ */
 
 #news {
     min-height: 80px;
@@ -398,10 +382,6 @@ button:active {
     border-radius: 12px;
     border-left: 3px solid var(--accent-green);
 }
-
-/* ═══════════════════════════════════════ */
-/* АНИМАЦИИ */
-/* ═══════════════════════════════════════ */
 
 @keyframes slideIn {
     from {
@@ -418,10 +398,6 @@ button:active {
     animation: slideIn 0.5s ease;
 }
 
-/* ═══════════════════════════════════════ */
-/* СКРОЛЛБАР */
-/* ═══════════════════════════════════════ */
-
 ::-webkit-scrollbar {
     width: 6px;
 }
@@ -434,10 +410,6 @@ button:active {
     background: var(--accent-green);
     border-radius: 3px;
 }
-
-/* ═══════════════════════════════════════ */
-/* АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ */
-/* ═══════════════════════════════════════ */
 
 @media (max-width: 400px) {
     .game {
@@ -456,7 +428,7 @@ button:active {
         font-size: 24px;
     }
 }
-/* Фоновые декорации */
+
 .bg-decoration {
     position: fixed;
     top: 0;
@@ -517,4 +489,90 @@ button:active {
         transform: translateY(-100vh) rotate(720deg);
         opacity: 0;
     }
+}
+
+.subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.leader-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.leader-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(4px);
+}
+
+.leader-rank {
+    font-size: 20px;
+    font-weight: 800;
+    min-width: 40px;
+    text-align: center;
+}
+
+.leader-info {
+    flex: 1;
+}
+
+.leader-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.leader-days {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.leader-profit {
+    font-size: 16px;
+    font-weight: 800;
+    text-align: right;
+}
+
+.profit-positive {
+    color: var(--accent-green);
+    text-shadow: 0 0 10px rgba(0, 210, 106, 0.3);
+}
+
+.profit-negative {
+    color: var(--accent-red);
+}
+
+.loading, .empty, .error {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.refresh-btn {
+    margin-top: 16px;
+    background: linear-gradient(135deg, var(--accent-blue), #5352ed) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(55, 66, 250, 0.3) !important;
+}
+
+.refresh-btn:hover {
+    box-shadow: 0 6px 20px rgba(55, 66, 250, 0.5) !important;
+    transform: translateY(-2px);
 }

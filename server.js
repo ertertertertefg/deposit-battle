@@ -30,17 +30,14 @@ app.get("/api/save/:userId", (req, res) => {
     const saves = readSaves();
     const userId = req.params.userId;
 
-    // Если есть сохранение для этого userId — отдаём его
     if (saves[userId]) {
         return res.json(saves[userId]);
     }
 
-    // Если нет сохранения для этого userId, но есть для guest — отдаём guest
     if (saves["guest"]) {
         return res.json(saves["guest"]);
     }
 
-    // Если нет ничего — создаём новое
     saves[userId] = {
         balance: 100000,
         deposit: 0,
@@ -48,7 +45,8 @@ app.get("/api/save/:userId", (req, res) => {
         crypto: 0,
         stocks: 0,
         cryptoPrice: 50000,
-        stockPrice: 1000
+        stockPrice: 1000,
+        userName: "Игрок"
     };
     writeSaves(saves);
 
@@ -59,7 +57,7 @@ app.post("/api/save/:userId", (req, res) => {
     const saves = readSaves();
     const userId = req.params.userId;
 
-    const { balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice } = req.body;
+    const { balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice, userName } = req.body;
 
     saves[userId] = {
         balance: Number(balance) || 100000,
@@ -68,7 +66,9 @@ app.post("/api/save/:userId", (req, res) => {
         crypto: Number(crypto) || 0,
         stocks: Number(stocks) || 0,
         cryptoPrice: Number(cryptoPrice) || 50000,
-        stockPrice: Number(stockPrice) || 1000
+        stockPrice: Number(stockPrice) || 1000,
+        userName: userName || "Игрок",
+        lastActive: Date.now()
     };
 
     writeSaves(saves);
@@ -77,6 +77,31 @@ app.post("/api/save/:userId", (req, res) => {
         success: true,
         save: saves[userId]
     });
+});
+
+app.get("/api/leaderboard", (req, res) => {
+    const saves = readSaves();
+    
+    const leaders = Object.entries(saves)
+        .filter(([id, data]) => id !== "guest" && data.day > 1)
+        .map(([id, data]) => {
+            const cryptoValue = (data.crypto || 0) * (data.cryptoPrice || 50000);
+            const stockValue = (data.stocks || 0) * (data.stockPrice || 1000);
+            const totalAssets = (data.balance || 0) + (data.deposit || 0) + cryptoValue + stockValue;
+            const profit = totalAssets - 100000;
+            
+            return {
+                userId: id,
+                userName: data.userName || "Игрок",
+                day: data.day || 1,
+                profit: profit,
+                totalAssets: totalAssets
+            };
+        })
+        .sort((a, b) => b.profit - a.profit)
+        .slice(0, 10);
+
+    res.json(leaders);
 });
 
 app.listen(PORT, () => {
