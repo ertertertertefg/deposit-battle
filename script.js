@@ -22,10 +22,6 @@ let tradeCount = 0;
 let cryptoHoldDays = 0;
 let hasCrypto = false;
 
-// ═══════════════════════════════════════
-// УНИКАЛЬНЫЙ ID ДЛЯ КАЖДОГО ИГРОКА
-// ═══════════════════════════════════════
-
 let userId = localStorage.getItem("depositBattleUserId");
 
 if (!userId) {
@@ -142,6 +138,9 @@ const buyStockButton = document.getElementById("buyStockButton");
 const sellStockButton = document.getElementById("sellStockButton");
 
 const refreshLeaderboardBtn = document.getElementById("refreshLeaderboard");
+
+const workButton = document.getElementById("workButton");
+const workTimer = document.getElementById("workTimer");
 
 if (userNameText) userNameText.textContent = "👤 " + userName;
 
@@ -293,7 +292,7 @@ async function loadProgress() {
         day = data.day;
         crypto = data.crypto || 0;
         stocks = data.stocks || 0;
-        cryptoPrice = data.cryptoPrice || 50000;
+        cryptoPrice = data.cryptoPrice || 23000;
         stockPrice = data.stockPrice || 1000;
         achievements = data.achievements || [];
         lastLoginDate = data.lastLoginDate || null;
@@ -383,10 +382,6 @@ async function loadLeaderboard() {
     }
 }
 
-// ═══════════════════════════════════════
-// ДЕПОЗИТ
-// ═══════════════════════════════════════
-
 if (depositButton) {
     depositButton.onclick = async function () {
         if (!depositInput) return;
@@ -429,10 +424,6 @@ if (withdrawButton) {
         }
     };
 }
-
-// ═══════════════════════════════════════
-// КРИПТОВАЛЮТА
-// ═══════════════════════════════════════
 
 if (buyCryptoButton) {
     buyCryptoButton.onclick = async function () {
@@ -484,10 +475,6 @@ if (sellCryptoButton) {
     };
 }
 
-// ═══════════════════════════════════════
-// АКЦИИ
-// ═══════════════════════════════════════
-
 if (buyStockButton) {
     buyStockButton.onclick = async function () {
         if (!stockInput) return;
@@ -536,9 +523,49 @@ if (sellStockButton) {
     };
 }
 
-// ═══════════════════════════════════════
-// СЛЕДУЮЩИЙ ДЕНЬ
-// ═══════════════════════════════════════
+let workCooldown = false;
+const WORK_COOLDOWN_MS = 30000;
+const WORK_SALARY = 5000;
+
+if (workButton) {
+    workButton.onclick = async function () {
+        if (workCooldown) {
+            tg ? tg.showAlert("Подождите окончания перерыва!") : alert("Подождите окончания перерыва!");
+            return;
+        }
+
+        balance += WORK_SALARY;
+        updateScreen();
+        addNews("💼 Вы поработали на дядю и заработали " + WORK_SALARY.toLocaleString("ru-RU") + " ₽");
+
+        workCooldown = true;
+        workButton.disabled = true;
+        workButton.textContent = "Перерыв...";
+
+        let remaining = WORK_COOLDOWN_MS / 1000;
+
+        const timerInterval = setInterval(() => {
+            remaining--;
+            if (workTimer) {
+                workTimer.textContent = `⏱️ Осталось: ${remaining} сек`;
+            }
+
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                workCooldown = false;
+                workButton.disabled = false;
+                workButton.textContent = "Работать";
+                if (workTimer) workTimer.textContent = "";
+            }
+        }, 1000);
+
+        await saveProgress();
+
+        if (tg?.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred("success");
+        }
+    };
+}
 
 let nextDayCooldown = false;
 
@@ -605,10 +632,6 @@ if (nextDayButton) {
     };
 }
 
-// ═══════════════════════════════════════
-// РЕСТАРТ
-// ═══════════════════════════════════════
-
 if (restartButton) {
     restartButton.onclick = async function () {
         const confirmed = tg ? confirm("Точно начать заново? Весь прогресс будет потерян!") : confirm("Точно начать заново? Весь прогресс будет потерян!");
@@ -638,17 +661,9 @@ if (restartButton) {
     };
 }
 
-// ═══════════════════════════════════════
-// ЛИДЕРБОРД
-// ═══════════════════════════════════════
-
 if (refreshLeaderboardBtn) {
     refreshLeaderboardBtn.onclick = loadLeaderboard;
 }
-
-// ═══════════════════════════════════════
-// СТАРТ
-// ═══════════════════════════════════════
 
 loadProgress();
 updateScreen();

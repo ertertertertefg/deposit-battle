@@ -193,10 +193,6 @@ button:active {
     transform: scale(0.98);
 }
 
-/* ═══════════════════════════════════════ */
-/* ЗЕЛЁНЫЕ КНОПКИ — КУПИТЬ / ПОЛОЖИТЬ */
-/* ═══════════════════════════════════════ */
-
 #depositButton,
 #buyCryptoButton,
 #buyStockButton {
@@ -210,10 +206,6 @@ button:active {
     background: var(--green-hover);
     transform: translateY(-1px);
 }
-
-/* ═══════════════════════════════════════ */
-/* КРАСНЫЕ КНОПКИ — ПРОДАТЬ / СНЯТЬ */
-/* ═══════════════════════════════════════ */
 
 #withdrawButton,
 #sellCryptoButton,
@@ -229,10 +221,6 @@ button:active {
     background: var(--red-hover);
     transform: translateY(-1px);
 }
-
-/* ═══════════════════════════════════════ */
-/* ОСТАЛЬНЫЕ КНОПКИ */
-/* ═══════════════════════════════════════ */
 
 #nextDayButton {
     background: var(--accent);
@@ -548,4 +536,76 @@ button:active {
     padding: 8px 10px;
     background: var(--bg-primary);
     border-radius: 8px;
+}
+
+/* ═══════════════════════════════════════ */
+/* РАБОТА НА ДЯДЮ */
+/* ═══════════════════════════════════════ */
+
+.work-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.work-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.work-salary {
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    border-radius: 8px;
+}
+
+.work-salary b {
+    color: var(--accent-bright);
+}
+
+.work-cooldown {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 6px 12px;
+    background: var(--bg-primary);
+    border-radius: 8px;
+}
+
+.work-cooldown b {
+    color: var(--text-secondary);
+}
+
+#workButton {
+    background: var(--green);
+    color: white;
+    font-size: 15px;
+    padding: 16px;
+}
+
+#workButton:hover {
+    background: var(--green-hover);
+    transform: translateY(-1px);
+}
+
+#workButton:disabled {
+    background: var(--text-muted);
+    color: var(--bg-primary);
+    cursor: not-allowed;
+    transform: none;
+}
+
+#workButton:disabled:hover {
+    background: var(--text-muted);
+    transform: none;
+}
+
+.work-timer {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+    min-height: 20px;
 }
