@@ -456,3 +456,65 @@ button:active {
         font-size: 24px;
     }
 }
+/* Фоновые декорации */
+.bg-decoration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.bg-decoration .coin {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.04;
+    animation: float-coin 15s linear infinite;
+}
+
+.bg-decoration .coin:nth-child(1) {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--accent-gold), #ff6348);
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.bg-decoration .coin:nth-child(2) {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent-green), #00b894);
+    top: 60%;
+    right: 15%;
+    animation-delay: 5s;
+}
+
+.bg-decoration .coin:nth-child(3) {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--accent-blue), #5352ed);
+    bottom: 20%;
+    left: 30%;
+    animation-delay: 10s;
+}
+
+@keyframes float-coin {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.04;
+    }
+    90% {
+        opacity: 0.04;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
