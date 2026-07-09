@@ -2,7 +2,7 @@ let balance = 100000;
 let deposit = 0;
 let day = 1;
 
-// НОВОЕ: Криптовалюта и акции
+// Криптовалюта и акции
 let crypto = 0;
 let stocks = 0;
 let cryptoPrice = 50000;
@@ -44,7 +44,10 @@ if (tg) {
     });
 }
 
-// Элементы
+// ═══════════════════════════════════════
+// Элементы (с проверкой на null!)
+// ═══════════════════════════════════════
+
 const money = document.getElementById("money");
 const depositText = document.getElementById("deposit");
 const depositButton = document.getElementById("depositButton");
@@ -54,7 +57,7 @@ const nextDayButton = document.getElementById("nextDayButton");
 const news = document.getElementById("news");
 const userNameText = document.getElementById("userName");
 
-// НОВОЕ: Элементы крипты и акций
+// Крипта и акции — с проверкой
 const cryptoText = document.getElementById("crypto");
 const cryptoPriceText = document.getElementById("cryptoPrice");
 const cryptoInput = document.getElementById("cryptoInput");
@@ -67,22 +70,21 @@ const stockInput = document.getElementById("stockInput");
 const buyStockButton = document.getElementById("buyStockButton");
 const sellStockButton = document.getElementById("sellStockButton");
 
-userNameText.textContent = "👤 " + userName;
+if (userNameText) userNameText.textContent = "👤 " + userName;
 
 function addNews(text) {
-    news.textContent = text;
+    if (news) news.textContent = text;
 }
 
 function updateScreen() {
-    money.textContent = balance.toLocaleString("ru-RU") + " ₽";
-    depositText.textContent = "🏦 Депозит: " + deposit.toLocaleString("ru-RU") + " ₽";
-    dayText.textContent = "📅 День: " + day;
+    if (money) money.textContent = balance.toLocaleString("ru-RU") + " ₽";
+    if (depositText) depositText.textContent = "🏦 Депозит: " + deposit.toLocaleString("ru-RU") + " ₽";
+    if (dayText) dayText.textContent = "📅 День: " + day;
     
-    // НОВОЕ: Обновляем крипту и акции
-    cryptoText.textContent = "₿ Крипта: " + crypto + " ₿";
-    cryptoPriceText.textContent = "💰 Цена: " + cryptoPrice.toLocaleString("ru-RU") + " ₽ за 1 ₿";
-    stocksText.textContent = "📈 Акции: " + stocks + " шт.";
-    stockPriceText.textContent = "💰 Цена: " + stockPrice.toLocaleString("ru-RU") + " ₽ за 1 акцию";
+    if (cryptoText) cryptoText.textContent = "₿ Крипта: " + crypto + " ₿";
+    if (cryptoPriceText) cryptoPriceText.textContent = "💰 Цена: " + cryptoPrice.toLocaleString("ru-RU") + " ₽ за 1 ₿";
+    if (stocksText) stocksText.textContent = "📈 Акции: " + stocks + " шт.";
+    if (stockPriceText) stockPriceText.textContent = "💰 Цена: " + stockPrice.toLocaleString("ru-RU") + " ₽ за 1 акцию";
 }
 
 async function loadProgress() {
@@ -93,7 +95,6 @@ async function loadProgress() {
         balance = data.balance;
         deposit = data.deposit;
         day = data.day;
-        // НОВОЕ: Загружаем крипту и акции
         crypto = data.crypto || 0;
         stocks = data.stocks || 0;
         cryptoPrice = data.cryptoPrice || 50000;
@@ -118,7 +119,6 @@ async function saveProgress() {
                 balance,
                 deposit,
                 day,
-                // НОВОЕ: Сохраняем крипту и акции
                 crypto,
                 stocks,
                 cryptoPrice,
@@ -131,144 +131,163 @@ async function saveProgress() {
     }
 }
 
-// Депозит (старый код)
-depositButton.onclick = async function () {
-    const amount = Number(depositInput.value);
-    if (amount <= 0) {
-        tg ? tg.showAlert("Введите сумму больше 0") : alert("Введите сумму больше 0");
-        return;
-    }
-    if (balance >= amount) {
-        balance -= amount;
-        deposit += amount;
-        depositInput.value = "";
-        updateScreen();
-        addNews("🏦 Вы положили " + amount.toLocaleString("ru-RU") + " ₽ на депозит");
-        await saveProgress();
-    } else {
-        tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
-    }
-};
+// ═══════════════════════════════════════
+// Обработчики кнопок (только если элементы существуют!)
+// ═══════════════════════════════════════
 
-// НОВОЕ: Купить криптовалюту
-buyCryptoButton.onclick = async function () {
-    const amount = Number(cryptoInput.value);
-    if (amount <= 0) {
-        tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
-        return;
-    }
-    const totalCost = amount * cryptoPrice;
-    if (balance >= totalCost) {
-        balance -= totalCost;
-        crypto += amount;
-        cryptoInput.value = "";
-        updateScreen();
-        addNews("🚀 Вы купили " + amount + " ₿ за " + totalCost.toLocaleString("ru-RU") + " ₽");
-        await saveProgress();
-    } else {
-        tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
-    }
-};
+// Депозит
+if (depositButton) {
+    depositButton.onclick = async function () {
+        if (!depositInput) return;
+        const amount = Number(depositInput.value);
+        if (amount <= 0) {
+            tg ? tg.showAlert("Введите сумму больше 0") : alert("Введите сумму больше 0");
+            return;
+        }
+        if (balance >= amount) {
+            balance -= amount;
+            deposit += amount;
+            depositInput.value = "";
+            updateScreen();
+            addNews("🏦 Вы положили " + amount.toLocaleString("ru-RU") + " ₽ на депозит");
+            await saveProgress();
+        } else {
+            tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
+        }
+    };
+}
 
-// НОВОЕ: Продать криптовалюту
-sellCryptoButton.onclick = async function () {
-    const amount = Number(cryptoInput.value);
-    if (amount <= 0) {
-        tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
-        return;
-    }
-    if (crypto >= amount) {
+// Купить крипту
+if (buyCryptoButton) {
+    buyCryptoButton.onclick = async function () {
+        if (!cryptoInput) return;
+        const amount = Number(cryptoInput.value);
+        if (amount <= 0) {
+            tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
+            return;
+        }
         const totalCost = amount * cryptoPrice;
-        balance += totalCost;
-        crypto -= amount;
-        cryptoInput.value = "";
-        updateScreen();
-        addNews("💰 Вы продали " + amount + " ₿ за " + totalCost.toLocaleString("ru-RU") + " ₽");
-        await saveProgress();
-    } else {
-        tg ? tg.showAlert("Недостаточно криптовалюты") : alert("Недостаточно криптовалюты");
-    }
-};
+        if (balance >= totalCost) {
+            balance -= totalCost;
+            crypto += amount;
+            cryptoInput.value = "";
+            updateScreen();
+            addNews("🚀 Вы купили " + amount + " ₿ за " + totalCost.toLocaleString("ru-RU") + " ₽");
+            await saveProgress();
+        } else {
+            tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
+        }
+    };
+}
 
-// НОВОЕ: Купить акции
-buyStockButton.onclick = async function () {
-    const amount = Number(stockInput.value);
-    if (amount <= 0) {
-        tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
-        return;
-    }
-    const totalCost = amount * stockPrice;
-    if (balance >= totalCost) {
-        balance -= totalCost;
-        stocks += amount;
-        stockInput.value = "";
-        updateScreen();
-        addNews("📈 Вы купили " + amount + " акций за " + totalCost.toLocaleString("ru-RU") + " ₽");
-        await saveProgress();
-    } else {
-        tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
-    }
-};
+// Продать крипту
+if (sellCryptoButton) {
+    sellCryptoButton.onclick = async function () {
+        if (!cryptoInput) return;
+        const amount = Number(cryptoInput.value);
+        if (amount <= 0) {
+            tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
+            return;
+        }
+        if (crypto >= amount) {
+            const totalCost = amount * cryptoPrice;
+            balance += totalCost;
+            crypto -= amount;
+            cryptoInput.value = "";
+            updateScreen();
+            addNews("💰 Вы продали " + amount + " ₿ за " + totalCost.toLocaleString("ru-RU") + " ₽");
+            await saveProgress();
+        } else {
+            tg ? tg.showAlert("Недостаточно криптовалюты") : alert("Недостаточно криптовалюты");
+        }
+    };
+}
 
-// НОВОЕ: Продать акции
-sellStockButton.onclick = async function () {
-    const amount = Number(stockInput.value);
-    if (amount <= 0) {
-        tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
-        return;
-    }
-    if (stocks >= amount) {
+// Купить акции
+if (buyStockButton) {
+    buyStockButton.onclick = async function () {
+        if (!stockInput) return;
+        const amount = Number(stockInput.value);
+        if (amount <= 0) {
+            tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
+            return;
+        }
         const totalCost = amount * stockPrice;
-        balance += totalCost;
-        stocks -= amount;
-        stockInput.value = "";
+        if (balance >= totalCost) {
+            balance -= totalCost;
+            stocks += amount;
+            stockInput.value = "";
+            updateScreen();
+            addNews("📈 Вы купили " + amount + " акций за " + totalCost.toLocaleString("ru-RU") + " ₽");
+            await saveProgress();
+        } else {
+            tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
+        }
+    };
+}
+
+// Продать акции
+if (sellStockButton) {
+    sellStockButton.onclick = async function () {
+        if (!stockInput) return;
+        const amount = Number(stockInput.value);
+        if (amount <= 0) {
+            tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
+            return;
+        }
+        if (stocks >= amount) {
+            const totalCost = amount * stockPrice;
+            balance += totalCost;
+            stocks -= amount;
+            stockInput.value = "";
+            updateScreen();
+            addNews("💰 Вы продали " + amount + " акций за " + totalCost.toLocaleString("ru-RU") + " ₽");
+            await saveProgress();
+        } else {
+            tg ? tg.showAlert("Недостаточно акций") : alert("Недостаточно акций");
+        }
+    };
+}
+
+// Следующий день
+if (nextDayButton) {
+    nextDayButton.onclick = async function () {
+        day++;
+
+        const percent = 0.01;
+        const income = Math.floor(deposit * percent);
+        deposit += income;
+
+        const cryptoChange = (Math.random() - 0.5) * 0.3;
+        cryptoPrice = Math.max(10000, Math.floor(cryptoPrice * (1 + cryptoChange)));
+        
+        const stockChange = (Math.random() - 0.5) * 0.2;
+        stockPrice = Math.max(100, Math.floor(stockPrice * (1 + stockChange)));
+
+        const randomEvent = events[Math.floor(Math.random() * events.length)];
+
+        if (randomEvent.includes("бонус")) {
+            balance += 500;
+        }
+        if (randomEvent.includes("Редкий бонус")) {
+            balance += 1000;
+        }
+
         updateScreen();
-        addNews("💰 Вы продали " + amount + " акций за " + totalCost.toLocaleString("ru-RU") + " ₽");
+
+        let newsText = randomEvent + "<br>💸 Доход по депозиту: " + income.toLocaleString("ru-RU") + " ₽";
+        newsText += "<br>₿ Крипта: " + (cryptoChange > 0 ? "📈 +" : "📉 ") + Math.round(cryptoChange * 100) + "%";
+        newsText += "<br>📈 Акции: " + (stockChange > 0 ? "📈 +" : "📉 ") + Math.round(stockChange * 100) + "%";
+        
+        if (news) news.innerHTML = newsText;
+
         await saveProgress();
-    } else {
-        tg ? tg.showAlert("Недостаточно акций") : alert("Недостаточно акций");
-    }
-};
 
-// Следующий день (обновлён)
-nextDayButton.onclick = async function () {
-    day++;
-
-    // Доход по депозиту
-    const percent = 0.01;
-    const income = Math.floor(deposit * percent);
-    deposit += income;
-
-    // НОВОЕ: Изменение цен на крипту и акции
-    const cryptoChange = (Math.random() - 0.5) * 0.3; // ±15%
-    cryptoPrice = Math.max(10000, Math.floor(cryptoPrice * (1 + cryptoChange)));
-    
-    const stockChange = (Math.random() - 0.5) * 0.2; // ±10%
-    stockPrice = Math.max(100, Math.floor(stockPrice * (1 + stockChange)));
-
-    const randomEvent = events[Math.floor(Math.random() * events.length)];
-
-    if (randomEvent.includes("бонус")) {
-        balance += 500;
-    }
-    if (randomEvent.includes("Редкий бонус")) {
-        balance += 1000;
-    }
-
-    updateScreen();
-
-    let newsText = randomEvent + "<br>💸 Доход по депозиту: " + income.toLocaleString("ru-RU") + " ₽";
-    newsText += "<br>₿ Крипта: " + (cryptoChange > 0 ? "📈 +" : "📉 ") + Math.round(cryptoChange * 100) + "%";
-    newsText += "<br>📈 Акции: " + (stockChange > 0 ? "📈 +" : "📉 ") + Math.round(stockChange * 100) + "%";
-    
-    news.innerHTML = newsText;
-
-    await saveProgress();
-
-    if (tg?.HapticFeedback) {
-        tg.HapticFeedback.notificationOccurred("success");
-    }
-};
+        if (tg?.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred("success");
+        }
+    };
+}
 
 loadProgress();
 updateScreen();
