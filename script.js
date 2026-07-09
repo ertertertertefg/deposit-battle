@@ -51,6 +51,7 @@ if (tg) {
 const money = document.getElementById("money");
 const depositText = document.getElementById("deposit");
 const depositButton = document.getElementById("depositButton");
+const withdrawButton = document.getElementById("withdrawButton");
 const depositInput = document.getElementById("depositInput");
 const dayText = document.getElementById("day");
 const nextDayButton = document.getElementById("nextDayButton");
@@ -156,7 +157,27 @@ if (depositButton) {
         }
     };
 }
-
+// Снять с депозита
+if (withdrawButton) {
+    withdrawButton.onclick = async function () {
+        if (!depositInput) return;
+        const amount = Number(depositInput.value);
+        if (amount <= 0) {
+            tg ? tg.showAlert("Введите сумму больше 0") : alert("Введите сумму больше 0");
+            return;
+        }
+        if (deposit >= amount) {
+            deposit -= amount;
+            balance += amount;
+            depositInput.value = "";
+            updateScreen();
+            addNews("🏦 Вы сняли " + amount.toLocaleString("ru-RU") + " ₽ с депозита");
+            await saveProgress();
+        } else {
+            tg ? tg.showAlert("Недостаточно денег на депозите") : alert("Недостаточно денег на депозите");
+        }
+    };
+}
 // Купить крипту
 if (buyCryptoButton) {
     buyCryptoButton.onclick = async function () {
