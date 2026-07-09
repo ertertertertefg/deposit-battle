@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Deposit Battle</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <link rel="stylesheet" href="style.css">
-
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-
     <div class="game">
         <div class="card header-card">
             <h1>💰 Deposit Battle</h1>
@@ -26,15 +22,55 @@
         <div class="card">
             <h2>Депозит</h2>
             <div id="deposit">🏦 Депозит: 0 ₽</div>
-
-            <input
-                id="depositInput"
-                type="number"
-                placeholder="Введите сумму"
-                inputmode="numeric"
-            >
-
+            <input id="depositInput" type="number" placeholder="Введите сумму" inputmode="numeric">
             <button id="depositButton">Положить на депозит</button>
+        </div>
+                <!-- Депозит -->
+        <div class="card">
+            <h2>Депозит</h2>
+            <div id="deposit">🏦 Депозит: 0 ₽</div>
+            <input id="depositInput" type="number" placeholder="Введите сумму" inputmode="numeric">
+            <button id="depositButton">Положить на депозит</button>
+        </div>
+
+        <!-- ═══ КРИПТОВАЛЮТА ═══ -->
+        <div class="card">
+            <h2>Криптовалюта</h2>
+            <div id="crypto">₿ Крипта: 0 ₿</div>
+            <div id="cryptoPrice">💰 Цена: 50 000 ₽ за 1 ₿</div>
+            <input id="cryptoInput" type="number" placeholder="Введите количество" inputmode="numeric">
+            <button id="buyCryptoButton">Купить крипту</button>
+            <button id="sellCryptoButton">Продать крипту</button>
+        </div>
+
+        <!-- ═══ АКЦИИ ═══ -->
+        <div class="card">
+            <h2>Акции</h2>
+            <div id="stocks">📈 Акции: 0 шт.</div>
+            <div id="stockPrice">💰 Цена: 1 000 ₽ за 1 акцию</div>
+            <input id="stockInput" type="number" placeholder="Введите количество" inputmode="numeric">
+            <button id="buyStockButton">Купить акции</button>
+            <button id="sellStockButton">Продать акции</button>
+        </div>
+
+        <!-- НОВОЕ: Криптовалюта -->
+        <div class="card">
+            <h2>Криптовалюта</h2>
+            <div id="crypto">₿ Крипта: 0 ₿</div>
+            <div id="cryptoPrice">💰 Цена: 50 000 ₽ за 1 ₿</div>
+            <input id="cryptoInput" type="number" placeholder="Сколько купить" inputmode="numeric">
+            <button id="buyCryptoButton">Купить криптовалюту</button>
+            <button id="sellCryptoButton">Продать криптовалюту</button>
+        </div>
+
+        <!-- НОВОЕ: Акции -->
+        <div class="card">
+            <h2>Акции</h2>
+            <div id="stocks">📈 Акции: 0 шт.</div>
+            <div id="stockPrice">💰 Цена: 1 000 ₽ за 1 акцию</div>
+            <input id="stockInput" type="number" placeholder="Сколько купить" inputmode="numeric">
+            <button id="buyStockButton">Купить акции</button>
+            <button id="sellStockButton">Продать акции</button>
         </div>
 
         <div class="card">
