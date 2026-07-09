@@ -7,32 +7,44 @@ let stocks = 0;
 let cryptoPrice = 50000;
 let stockPrice = 1000;
 
-const events = [
+// Положительные события (50%)
+const positiveEvents = [
     { text: "🚀 Крипта взлетела на 25%!", crypto: 1.25, stock: 1.0 },
     { text: "🌟 Новый блокчейн запущен", crypto: 1.50, stock: 1.0 },
     { text: "💎 Институционалы вошли в крипту", crypto: 1.35, stock: 1.0 },
     { text: "🌙 Маск твитнул про Doge", crypto: 1.15, stock: 1.0 },
     { text: "🔥 ETF одобрили биткоин", crypto: 1.40, stock: 1.0 },
-    { text: "📉 Крипта обвалилась на 30%", crypto: 0.70, stock: 1.0 },
-    { text: "🏛️ SEC запретила крипту", crypto: 0.50, stock: 1.0 },
-    { text: "💣 Хакнули биржу", crypto: 0.60, stock: 1.0 },
-    { text: "⚠️ Кит продал всё", crypto: 0.65, stock: 1.0 },
-    { text: "🚫 Китай забанил майнинг", crypto: 0.55, stock: 1.0 },
     { text: "📈 Акции Tesla взлетели", crypto: 1.0, stock: 1.20 },
     { text: "🤝 Слияние гигантов", crypto: 1.0, stock: 1.30 },
     { text: "🏆 Компания выиграла тендер", crypto: 1.0, stock: 1.25 },
     { text: "💰 Рекордная прибыль квартала", crypto: 1.0, stock: 1.35 },
     { text: "🚀 IPO прошло успешно", crypto: 1.0, stock: 1.45 },
+    { text: "🌍 Мировой экономический бум", crypto: 1.15, stock: 1.15 },
+    { text: "🎉 Центробанки снизили ставки", crypto: 1.20, stock: 1.20 }
+];
+
+// Отрицательные события (50%)
+const negativeEvents = [
+    { text: "📉 Крипта обвалилась на 30%", crypto: 0.70, stock: 1.0 },
+    { text: "🏛️ SEC запретила крипту", crypto: 0.50, stock: 1.0 },
+    { text: "💣 Хакнули биржу", crypto: 0.60, stock: 1.0 },
+    { text: "⚠️ Кит продал всё", crypto: 0.65, stock: 1.0 },
+    { text: "🚫 Китай забанил майнинг", crypto: 0.55, stock: 1.0 },
     { text: "📉 Акции упали на 15%", crypto: 1.0, stock: 0.85 },
     { text: "🏢 Компания обанкротилась", crypto: 1.0, stock: 0.40 },
     { text: "📰 Скандал с CEO", crypto: 1.0, stock: 0.75 },
     { text: "🔥 Регулирование рынка", crypto: 1.0, stock: 0.90 },
     { text: "⚡ Завод сгорел", crypto: 1.0, stock: 0.55 },
-    { text: "🌍 Мировой экономический бум", crypto: 1.15, stock: 1.15 },
-    { text: "🎉 Центробанки снизили ставки", crypto: 1.20, stock: 1.20 },
     { text: "💥 Глобальный кризис", crypto: 0.80, stock: 0.80 },
     { text: "🌪️ Война началась", crypto: 0.70, stock: 0.70 }
 ];
+
+// Функция выбора события (50/50)
+function getRandomEvent() {
+    const isPositive = Math.random() < 0.5; // 50% шанс
+    const events = isPositive ? positiveEvents : negativeEvents;
+    return events[Math.floor(Math.random() * events.length)];
+}
 
 function showTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(tab => {
@@ -348,7 +360,8 @@ if (nextDayButton) {
         const income = Math.floor(deposit * percent);
         deposit += income;
 
-        const event = events[Math.floor(Math.random() * events.length)];
+        // 50/50 шанс — выбираем положительное или отрицательное событие
+        const event = getRandomEvent();
 
         cryptoPrice = Math.max(1000, Math.floor(cryptoPrice * event.crypto));
         stockPrice = Math.max(50, Math.floor(stockPrice * event.stock));
