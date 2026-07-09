@@ -9,53 +9,67 @@
 </head>
 <body>
     <div class="game">
+        <!-- Шапка -->
         <div class="card header-card">
             <h1>💰 Deposit Battle</h1>
             <p id="userName">Игрок</p>
         </div>
 
-        <div class="card">
-            <h2>Баланс</h2>
-            <div id="money">100 000 ₽</div>
+        <!-- Вкладки -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('profile')">👤 Профиль</button>
+            <button class="tab-button" onclick="showTab('work')">💼 Работа</button>
         </div>
 
-        <div class="card">
-            <h2>Депозит</h2>
-            <div id="deposit">🏦 Депозит: 0 ₽</div>
-            <input id="depositInput" type="number" placeholder="Введите сумму" inputmode="numeric">
-            <div class="button-row">
-                <button id="depositButton">Положить</button>
-                <button id="withdrawButton">Снять</button>
+        <!-- ═══ ВКЛАДКА: ПРОФИЛЬ ═══ -->
+        <div id="tab-profile" class="tab-content active">
+            <div class="card">
+                <h2>Баланс</h2>
+                <div id="money">100 000 ₽</div>
+            </div>
+
+            <div class="card">
+                <h2>Депозит</h2>
+                <div id="deposit">🏦 Депозит: 0 ₽</div>
+                <input id="depositInput" type="number" placeholder="Введите сумму" inputmode="numeric">
+                <div class="button-row">
+                    <button id="depositButton">Положить</button>
+                    <button id="withdrawButton">Снять</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div id="day">📅 День: 1</div>
+                <button id="nextDayButton">Следующий день</button>
             </div>
         </div>
 
-        <div class="card">
-            <h2>Криптовалюта</h2>
-            <div id="crypto">₿ Крипта: 0 ₿</div>
-            <div id="cryptoPrice">💰 Цена: 50 000 ₽ за 1 ₿</div>
-            <input id="cryptoInput" type="number" placeholder="Сколько купить" inputmode="numeric">
-            <div class="button-row">
-                <button id="buyCryptoButton">Купить</button>
-                <button id="sellCryptoButton">Продать</button>
+        <!-- ═══ ВКЛАДКА: РАБОТА ═══ -->
+        <div id="tab-work" class="tab-content">
+            <div class="card">
+                <h2>Криптовалюта</h2>
+                <div id="crypto">₿ Крипта: 0 ₿</div>
+                <div id="cryptoPrice">💰 Цена: 50 000 ₽ за 1 ₿</div>
+                <input id="cryptoInput" type="number" placeholder="Сколько купить" inputmode="numeric">
+                <div class="button-row">
+                    <button id="buyCryptoButton">Купить</button>
+                    <button id="sellCryptoButton">Продать</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Акции</h2>
+                <div id="stocks">📈 Акции: 0 шт.</div>
+                <div id="stockPrice">💰 Цена: 1 000 ₽ за 1 акцию</div>
+                <input id="stockInput" type="number" placeholder="Введите количество" inputmode="numeric">
+                <div class="button-row">
+                    <button id="buyStockButton">Купить</button>
+                    <button id="sellStockButton">Продать</button>
+                </div>
             </div>
         </div>
 
-        <div class="card">
-            <h2>Акции</h2>
-            <div id="stocks">📈 Акции: 0 шт.</div>
-            <div id="stockPrice">💰 Цена: 1 000 ₽ за 1 акцию</div>
-            <input id="stockInput" type="number" placeholder="Введите количество" inputmode="numeric">
-            <div class="button-row">
-                <button id="buyStockButton">Купить</button>
-                <button id="sellStockButton">Продать</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <div id="day">📅 День: 1</div>
-            <button id="nextDayButton">Следующий день</button>
-        </div>
-
+        <!-- Новости (всегда видны) -->
         <div class="card">
             <h2>Новости</h2>
             <div id="news">📰 Добро пожаловать в игру!</div>

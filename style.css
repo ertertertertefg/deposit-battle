@@ -105,3 +105,38 @@ button:active {
     flex: 1;
     margin-top: 12px;
 }
+/* Вкладки */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.tab-button {
+    flex: 1;
+    margin-top: 0;
+    padding: 12px;
+    border: none;
+    border-radius: 12px;
+    background: var(--tg-theme-secondary-bg-color, #3a3d42);
+    color: var(--tg-theme-text-color, #ffffff);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.tab-button.active {
+    background: var(--tg-theme-button-color, #4CAF50);
+    color: var(--tg-theme-button-text-color, #ffffff);
+    opacity: 1;
+}
+
+/* Содержимое вкладок */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}

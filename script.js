@@ -19,6 +19,32 @@ const events = [
     "💎 Редкий бонус: 1000 ₽"
 ];
 
+// ═══════════════════════════════════════
+// ВКЛАДКИ
+// ═══════════════════════════════════════
+
+function showTab(tabName) {
+    // Скрываем все вкладки
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Убираем активность со всех кнопок
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Показываем нужную вкладку
+    document.getElementById('tab-' + tabName).classList.add('active');
+    
+    // Делаем кнопку активной
+    event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// TELEGRAM WEBAPP
+// ═══════════════════════════════════════
+
 const tg = window.Telegram?.WebApp;
 
 let userId = "guest";
@@ -29,9 +55,7 @@ if (tg) {
     tg.expand();
 
     const user = tg.initDataUnsafe?.user;
-
     if (user) {
-        userId = String(user.id);
         userName = user.first_name || "Игрок";
     }
 
@@ -45,7 +69,7 @@ if (tg) {
 }
 
 // ═══════════════════════════════════════
-// Элементы (с проверкой на null!)
+// ЭЛЕМЕНТЫ (с проверкой на null)
 // ═══════════════════════════════════════
 
 const money = document.getElementById("money");
@@ -58,7 +82,7 @@ const nextDayButton = document.getElementById("nextDayButton");
 const news = document.getElementById("news");
 const userNameText = document.getElementById("userName");
 
-// Крипта и акции — с проверкой
+// Крипта и акции
 const cryptoText = document.getElementById("crypto");
 const cryptoPriceText = document.getElementById("cryptoPrice");
 const cryptoInput = document.getElementById("cryptoInput");
@@ -133,10 +157,10 @@ async function saveProgress() {
 }
 
 // ═══════════════════════════════════════
-// Обработчики кнопок (только если элементы существуют!)
+// ОБРАБОТЧИКИ КНОПОК
 // ═══════════════════════════════════════
 
-// Депозит
+// Положить на депозит
 if (depositButton) {
     depositButton.onclick = async function () {
         if (!depositInput) return;
@@ -157,6 +181,7 @@ if (depositButton) {
         }
     };
 }
+
 // Снять с депозита
 if (withdrawButton) {
     withdrawButton.onclick = async function () {
@@ -178,6 +203,7 @@ if (withdrawButton) {
         }
     };
 }
+
 // Купить крипту
 if (buyCryptoButton) {
     buyCryptoButton.onclick = async function () {
