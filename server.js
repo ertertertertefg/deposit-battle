@@ -83,7 +83,7 @@ app.get("/api/leaderboard", (req, res) => {
     const saves = readSaves();
     
     const leaders = Object.entries(saves)
-        .filter(([id, data]) => id !== "guest" && data.day > 1)
+        .filter(([id, data]) => data.day > 1)
         .map(([id, data]) => {
             const cryptoValue = (data.crypto || 0) * (data.cryptoPrice || 50000);
             const stockValue = (data.stocks || 0) * (data.stockPrice || 1000);
