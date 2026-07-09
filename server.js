@@ -51,7 +51,6 @@ app.get("/api/save/:userId", (req, res) => {
         lastLoginDate: null,
         loginStreak: 0,
         tradeCount: 0,
-        casinoGamesPlayed: 0,
         cryptoHoldDays: 0
     };
     writeSaves(saves);
@@ -63,7 +62,7 @@ app.post("/api/save/:userId", (req, res) => {
     const saves = readSaves();
     const userId = req.params.userId;
 
-    const { balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice, userName, achievements, lastLoginDate, loginStreak, tradeCount, casinoGamesPlayed, cryptoHoldDays } = req.body;
+    const { balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice, userName, achievements, lastLoginDate, loginStreak, tradeCount, cryptoHoldDays } = req.body;
 
     saves[userId] = {
         balance: Number(balance) || 100000,
@@ -79,7 +78,6 @@ app.post("/api/save/:userId", (req, res) => {
         lastLoginDate: lastLoginDate || null,
         loginStreak: loginStreak || 0,
         tradeCount: Number(tradeCount) || 0,
-        casinoGamesPlayed: Number(casinoGamesPlayed) || 0,
         cryptoHoldDays: Number(cryptoHoldDays) || 0
     };
 

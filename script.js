@@ -18,7 +18,9 @@ let achievements = [];
 let lastLoginDate = null;
 let loginStreak = 0;
 let positiveStreak = 0;
-let tradeCount = 0; // Счётчик сделок для ачивки "Трейдер"
+let tradeCount = 0;
+let cryptoHoldDays = 0;
+let hasCrypto = false;
 
 // ═══════════════════════════════════════
 // УНИКАЛЬНЫЙ ID ДЛЯ КАЖДОГО ИГРОКА
@@ -69,14 +71,8 @@ const ALL_ACHIEVEMENTS = [
     { id: "lucky", icon: "🎰", name: "Везунчик", desc: "10 положительных событий" },
     { id: "veteran", icon: "⏳", name: "Ветеран", desc: "Прожить 365 дней" },
     { id: "trader", icon: "💱", name: "Трейдер", desc: "Совершить 50 сделок" },
-    { id: "hodler", icon: "💪", name: "Ходлер", desc: "Держать крипту 30 дней" },
-    { id: "gambler", icon: "🎲", name: "Азартный", desc: "Сыграть в казино 10 раз" },
-    { id: "jackpot", icon: "💰", name: "Джекпот", desc: "Выиграть в казино 100 000 ₽ за раз" }
+    { id: "hodler", icon: "💪", name: "Ходлер", desc: "Держать крипту 30 дней" }
 ];
-
-let casinoGamesPlayed = 0;
-let cryptoHoldDays = 0;
-let hasCrypto = false;
 
 function getRandomEvent() {
     const isPositive = Math.random() < 0.5;
@@ -146,14 +142,6 @@ const buyStockButton = document.getElementById("buyStockButton");
 const sellStockButton = document.getElementById("sellStockButton");
 
 const refreshLeaderboardBtn = document.getElementById("refreshLeaderboard");
-
-// ═══════════════════════════════════════
-// КАЗИНО ЭЛЕМЕНТЫ
-// ═══════════════════════════════════════
-const casinoBetInput = document.getElementById("casinoBetInput");
-const casinoDepositBtn = document.getElementById("casinoDepositBtn");
-const casinoPlayBtn = document.getElementById("casinoPlayBtn");
-const casinoResult = document.getElementById("casinoResult");
 
 if (userNameText) userNameText.textContent = "👤 " + userName;
 
@@ -246,9 +234,6 @@ function checkAchievements() {
     if (cryptoHoldDays >= 30 && !achievements.includes("hodler")) {
         newAchievements.push("hodler");
     }
-    if (casinoGamesPlayed >= 10 && !achievements.includes("gambler")) {
-        newAchievements.push("gambler");
-    }
     
     if (newAchievements.length > 0) {
         achievements.push(...newAchievements);
@@ -314,7 +299,6 @@ async function loadProgress() {
         lastLoginDate = data.lastLoginDate || null;
         loginStreak = data.loginStreak || 0;
         tradeCount = data.tradeCount || 0;
-        casinoGamesPlayed = data.casinoGamesPlayed || 0;
         cryptoHoldDays = data.cryptoHoldDays || 0;
 
         updateScreen();
@@ -347,7 +331,6 @@ async function saveProgress() {
                 lastLoginDate,
                 loginStreak,
                 tradeCount,
-                casinoGamesPlayed,
                 cryptoHoldDays
             })
         });
@@ -554,120 +537,6 @@ if (sellStockButton) {
 }
 
 // ═══════════════════════════════════════
-// КАЗИНО 🎰
-// ═══════════════════════════════════════
-
-let casinoCooldown = false;
-
-if (casinoDepositBtn) {
-    casinoDepositBtn.onclick = async function () {
-        if (!casinoBetInput) return;
-        const amount = Number(casinoBetInput.value);
-        
-        if (amount <= 0) {
-            tg ? tg.showAlert("Введите сумму больше 0") : alert("Введите сумму больше 0");
-            return;
-        }
-        if (balance >= amount) {
-            balance -= amount;
-            updateScreen();
-            addNews("💳 Вы поставили " + amount.toLocaleString("ru-RU") + " ₽ в казино");
-            if (casinoResult) {
-                casinoResult.innerHTML = `<div style="color: var(--accent-gold);">💳 Ставка: ${amount.toLocaleString("ru-RU")} ₽<br>Нажмите "Испытать удачу"!</div>`;
-            }
-            await saveProgress();
-        } else {
-            tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
-        }
-    };
-}
-
-if (casinoPlayBtn) {
-    casinoPlayBtn.onclick = async function () {
-        if (casinoCooldown) {
-            tg ? tg.showAlert("Подождите 2 секунды!") : alert("Подождите 2 секунды!");
-            return;
-        }
-
-        const amount = Number(casinoBetInput.value);
-        if (amount <= 0) {
-            tg ? tg.showAlert("Сначала введите ставку и нажмите 'Положить деньги'") : alert("Сначала введите ставку и нажмите 'Положить деньги'");
-            return;
-        }
-
-        casinoCooldown = true;
-        casinoPlayBtn.style.opacity = "0.5";
-        casinoPlayBtn.style.pointerEvents = "none";
-        casinoPlayBtn.textContent = "🎲 Крутим...";
-
-        // Анимация крутения
-        let spins = 0;
-        const maxSpins = 10;
-        const spinInterval = setInterval(() => {
-            spins++;
-            const randomEmoji = ["🍒", "🍋", "💎", "7️⃣", "🎰", "⭐"][Math.floor(Math.random() * 6)];
-            if (casinoResult) casinoResult.innerHTML = `<div style="font-size: 32px;">${randomEmoji} ${randomEmoji} ${randomEmoji}</div>`;
-            
-            if (spins >= maxSpins) {
-                clearInterval(spinInterval);
-                finishCasinoGame(amount);
-            }
-        }, 200);
-    };
-}
-
-async function finishCasinoGame(amount) {
-    const isWin = Math.random() < 0.40; // 40% шанс выигрыша
-    casinoGamesPlayed++;
-    
-    if (isWin) {
-        const winAmount = amount * 2;
-        balance += winAmount;
-        updateScreen();
-        
-        if (casinoResult) {
-            casinoResult.innerHTML = `
-                <div style="color: var(--accent-green); font-weight: bold;">
-                    🎉 ВЫИГРЫШ! +${winAmount.toLocaleString("ru-RU")} ₽<br>
-                    <span style="font-size: 14px; color: var(--text-secondary);">Баланс: ${balance.toLocaleString("ru-RU")} ₽</span>
-                </div>
-            `;
-        }
-        addNews("🎰 КАЗИНО: Вы выиграли " + winAmount.toLocaleString("ru-RU") + " ₽!");
-        
-        if (winAmount >= 100000 && !achievements.includes("jackpot")) {
-            achievements.push("jackpot");
-            showAchievementUnlock(["jackpot"]);
-        }
-    } else {
-        if (casinoResult) {
-            casinoResult.innerHTML = `
-                <div style="color: var(--accent-red); font-weight: bold;">
-                    💀 ПРОИГРЫШ...<br>
-                    <span style="font-size: 14px; color: var(--text-secondary);">Ставка сгорела</span>
-                </div>
-            `;
-        }
-        addNews("🎰 КАЗИНО: Вы проиграли " + amount.toLocaleString("ru-RU") + " ₽");
-    }
-    
-    casinoBetInput.value = "";
-    checkAchievements();
-    await saveProgress();
-    
-    if (tg?.HapticFeedback) {
-        tg.HapticFeedback.notificationOccurred(isWin ? "success" : "error");
-    }
-
-    setTimeout(() => {
-        casinoCooldown = false;
-        casinoPlayBtn.style.opacity = "1";
-        casinoPlayBtn.style.pointerEvents = "auto";
-        casinoPlayBtn.textContent = "🎲 Испытать удачу";
-    }, 2000);
-}
-
-// ═══════════════════════════════════════
 // СЛЕДУЮЩИЙ ДЕНЬ
 // ═══════════════════════════════════════
 
@@ -699,7 +568,6 @@ if (nextDayButton) {
         cryptoPrice = Math.max(1000, Math.floor(cryptoPrice * event.crypto));
         stockPrice = Math.max(50, Math.floor(stockPrice * event.stock));
 
-        // Считаем дни холдинга крипты
         if (hasCrypto) {
             cryptoHoldDays++;
         }
@@ -757,7 +625,6 @@ if (restartButton) {
         lastLoginDate = null;
         loginStreak = 0;
         tradeCount = 0;
-        casinoGamesPlayed = 0;
         cryptoHoldDays = 0;
         hasCrypto = false;
 
