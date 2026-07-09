@@ -95,3 +95,13 @@ button:active {
     font-size: 18px;
     line-height: 1.5;
 }
+/* Кнопки крипты и акций в одну строку */
+.button-row {
+    display: flex;
+    gap: 10px;
+}
+
+.button-row button {
+    flex: 1;
+    margin-top: 12px;
+}
