@@ -23,6 +23,7 @@
         <div class="tabs">
             <button class="tab-button active" onclick="showTab('profile')">👤 Профиль</button>
             <button class="tab-button" onclick="showTab('work')">💼 Работа</button>
+            <button class="tab-button" onclick="showTab('casino')">🎰 Казино</button>
             <button class="tab-button" onclick="showTab('achievements'); checkAchievements();">🏆 Ачивки</button>
             <button class="tab-button" onclick="showTab('leaderboard'); loadLeaderboard();">📊 Топ</button>
         </div>
@@ -72,6 +73,24 @@
                     <button id="buyStockButton">Купить</button>
                     <button id="sellStockButton">Продать</button>
                 </div>
+            </div>
+        </div>
+
+        <div id="tab-casino" class="tab-content">
+            <div class="card casino-card">
+                <h2>🎰 Казино</h2>
+                <div class="casino-info">
+                    <div class="casino-rules">🍀 Шанс выигрыша: <b>40%</b></div>
+                    <div class="casino-rules">💀 Шанс проигрыша: <b>60%</b></div>
+                    <div class="casino-rules">💰 Выигрыш: <b>2x</b> от ставки</div>
+                </div>
+                <div id="casinoBalance">💵 Баланс казино: 0 ₽</div>
+                <input id="casinoBetInput" type="number" placeholder="Введите ставку" inputmode="numeric">
+                <div class="button-row">
+                    <button id="casinoDepositBtn" class="casino-deposit">💳 Положить деньги</button>
+                    <button id="casinoPlayBtn" class="casino-play">🎲 Испытать удачу</button>
+                </div>
+                <div id="casinoResult" class="casino-result"></div>
             </div>
         </div>
 

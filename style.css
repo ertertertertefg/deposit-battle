@@ -684,3 +684,66 @@ button:active {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 8px;
 }
+/* ═══════════════════════════════════════ */
+/* СТИЛИ КАЗИНО */
+/* ═══════════════════════════════════════ */
+
+.casino-card {
+    background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(255, 165, 2, 0.1)) !important;
+    border: 1px solid rgba(255, 71, 87, 0.2) !important;
+}
+
+.casino-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.casino-rules {
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.casino-rules b {
+    color: var(--text-primary);
+}
+
+.casino-deposit {
+    background: linear-gradient(135deg, var(--accent-gold), #ff6348) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(255, 165, 2, 0.3) !important;
+}
+
+.casino-deposit:hover {
+    box-shadow: 0 6px 20px rgba(255, 165, 2, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+.casino-play {
+    background: linear-gradient(135deg, var(--accent-red), #ff6348) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3) !important;
+}
+
+.casino-play:hover {
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+.casino-result {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 16px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+}
