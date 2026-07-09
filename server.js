@@ -39,12 +39,12 @@ app.get("/api/save/:userId", (req, res) => {
     }
 
     saves[userId] = {
-        balance: 100000,
+        balance: 35000,
         deposit: 0,
         day: 1,
         crypto: 0,
         stocks: 0,
-        cryptoPrice: 50000,
+        cryptoPrice: 23000,
         stockPrice: 1000,
         userName: "Игрок",
         achievements: [],
