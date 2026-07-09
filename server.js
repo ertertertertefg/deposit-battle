@@ -46,7 +46,10 @@ app.get("/api/save/:userId", (req, res) => {
         stocks: 0,
         cryptoPrice: 50000,
         stockPrice: 1000,
-        userName: "Игрок"
+        userName: "Игрок",
+        achievements: [],
+        lastLoginDate: null,
+        loginStreak: 0
     };
     writeSaves(saves);
 
@@ -57,7 +60,7 @@ app.post("/api/save/:userId", (req, res) => {
     const saves = readSaves();
     const userId = req.params.userId;
 
-    const { balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice, userName } = req.body;
+    const { balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice, userName, achievements, lastLoginDate, loginStreak } = req.body;
 
     saves[userId] = {
         balance: Number(balance) || 100000,
@@ -68,7 +71,10 @@ app.post("/api/save/:userId", (req, res) => {
         cryptoPrice: Number(cryptoPrice) || 50000,
         stockPrice: Number(stockPrice) || 1000,
         userName: userName || "Игрок",
-        lastActive: Date.now()
+        lastActive: Date.now(),
+        achievements: achievements || [],
+        lastLoginDate: lastLoginDate || null,
+        loginStreak: loginStreak || 0
     };
 
     writeSaves(saves);
@@ -95,7 +101,8 @@ app.get("/api/leaderboard", (req, res) => {
                 userName: data.userName || "Игрок",
                 day: data.day || 1,
                 profit: profit,
-                totalAssets: totalAssets
+                totalAssets: totalAssets,
+                achievements: (data.achievements || []).length
             };
         })
         .sort((a, b) => b.profit - a.profit)

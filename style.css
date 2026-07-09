@@ -180,8 +180,14 @@ body::after {
 #day {
     font-size: 18px;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     color: var(--accent-gold);
+}
+
+#loginStreak {
+    font-size: 14px;
+    color: var(--accent-red);
+    margin-bottom: 12px;
 }
 
 input {
@@ -304,7 +310,7 @@ button:active {
 
 .tabs {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 20px;
     background: rgba(0, 0, 0, 0.2);
     padding: 6px;
@@ -314,12 +320,12 @@ button:active {
 
 .tab-button {
     flex: 1;
-    padding: 14px;
+    padding: 12px 8px;
     border: none;
     border-radius: 12px;
     background: transparent;
     color: var(--text-secondary);
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -426,6 +432,11 @@ button:active {
     
     .header-card h1 {
         font-size: 24px;
+    }
+    
+    .tab-button {
+        font-size: 11px;
+        padding: 10px 6px;
     }
 }
 
@@ -575,4 +586,101 @@ button:active {
 .refresh-btn:hover {
     box-shadow: 0 6px 20px rgba(55, 66, 250, 0.5) !important;
     transform: translateY(-2px);
+}
+
+.restart-btn {
+    margin-top: 12px;
+    background: linear-gradient(135deg, #ff4757, #ff6348) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3) !important;
+}
+
+.restart-btn:hover {
+    box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+.achievements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.achievement-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(4px);
+}
+
+.achievement-icon {
+    font-size: 32px;
+    min-width: 40px;
+    text-align: center;
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.achievement-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.achievement-count {
+    text-align: center;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-gold);
+    background: rgba(255, 165, 2, 0.1);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 165, 2, 0.2);
+}
+
+.bonus-card {
+    background: linear-gradient(135deg, rgba(0, 210, 106, 0.1), rgba(55, 66, 250, 0.1)) !important;
+    border: 1px solid rgba(0, 210, 106, 0.2) !important;
+}
+
+#dailyBonus {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-green);
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: rgba(0, 210, 106, 0.1);
+    border-radius: 12px;
+}
+
+.bonus-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bonus-item {
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
 }

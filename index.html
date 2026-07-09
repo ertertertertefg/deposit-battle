@@ -23,7 +23,8 @@
         <div class="tabs">
             <button class="tab-button active" onclick="showTab('profile')">👤 Профиль</button>
             <button class="tab-button" onclick="showTab('work')">💼 Работа</button>
-            <button class="tab-button" onclick="showTab('leaderboard'); loadLeaderboard();">🏆 Топ</button>
+            <button class="tab-button" onclick="showTab('achievements'); checkAchievements();">🏆 Ачивки</button>
+            <button class="tab-button" onclick="showTab('leaderboard'); loadLeaderboard();">📊 Топ</button>
         </div>
 
         <div id="tab-profile" class="tab-content active">
@@ -44,7 +45,9 @@
 
             <div class="card">
                 <div id="day">📅 День: 1</div>
+                <div id="loginStreak">🔥 Серия: 0 дней</div>
                 <button id="nextDayButton">Следующий день</button>
+                <button id="restartButton" class="restart-btn">🔄 Рестарт</button>
             </div>
         </div>
 
@@ -72,10 +75,27 @@
             </div>
         </div>
 
+        <div id="tab-achievements" class="tab-content">
+            <div class="card">
+                <h2>🏆 Достижения</h2>
+                <div id="achievementsList" class="achievements-list">
+                    <div class="loading">Загрузка...</div>
+                </div>
+            </div>
+            <div class="card bonus-card">
+                <h2>🎁 Ежедневный бонус</h2>
+                <div id="dailyBonus">Зайди завтра за бонусом!</div>
+                <div class="bonus-info">
+                    <div class="bonus-item">📅 Каждый день: <b>+1 ₿</b> и <b>+10 акций</b></div>
+                    <div class="bonus-item">🔥 7 дней подряд: <b>+5 ₿</b> и <b>+50 акций</b></div>
+                </div>
+            </div>
+        </div>
+
         <div id="tab-leaderboard" class="tab-content">
             <div class="card">
-                <h2>🏆 Топ 10 трейдеров</h2>
-                <p class="subtitle">Кто больше заработал на крипте и акциях</p>
+                <h2>📊 Топ 10 трейдеров</h2>
+                <p class="subtitle">Кто больше заработал</p>
                 <div id="leaderboardList" class="leaderboard-list">
                     <div class="loading">Загрузка...</div>
                 </div>
