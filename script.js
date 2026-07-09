@@ -19,6 +19,17 @@ let lastLoginDate = null;
 let loginStreak = 0;
 let positiveStreak = 0;
 
+// ═══════════════════════════════════════
+// УНИКАЛЬНЫЙ ID ДЛЯ КАЖДОГО ИГРОКА
+// ═══════════════════════════════════════
+
+let userId = localStorage.getItem("depositBattleUserId");
+
+if (!userId) {
+    userId = "guest_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+    localStorage.setItem("depositBattleUserId", userId);
+}
+
 const positiveEvents = [
     { text: "🚀 Крипта взлетела на 25%!", crypto: 1.25, stock: 1.0 },
     { text: "🌟 Новый блокчейн запущен", crypto: 1.50, stock: 1.0 },
@@ -81,7 +92,6 @@ function showTab(tabName) {
 
 const tg = window.Telegram?.WebApp;
 
-let userId = "guest";
 let userName = "Игрок";
 
 if (tg) {
@@ -90,6 +100,7 @@ if (tg) {
 
     const user = tg.initDataUnsafe?.user;
     if (user) {
+        userId = String(user.id);
         userName = user.first_name || "Игрок";
     }
 
