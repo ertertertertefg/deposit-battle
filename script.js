@@ -270,9 +270,21 @@ if (sellStockButton) {
     };
 }
 
-// Следующий день
+// Следующий день (с кулдауном 3 секунды)
+let nextDayCooldown = false;
+
 if (nextDayButton) {
     nextDayButton.onclick = async function () {
+        if (nextDayCooldown) {
+            tg ? tg.showAlert("Подождите 3 секунды!") : alert("Подождите 3 секунды!");
+            return;
+        }
+
+        nextDayCooldown = true;
+        nextDayButton.style.opacity = "0.5";
+        nextDayButton.style.pointerEvents = "none";
+        nextDayButton.textContent = "Подождите...";
+
         day++;
 
         const percent = 0.01;
@@ -307,6 +319,13 @@ if (nextDayButton) {
         if (tg?.HapticFeedback) {
             tg.HapticFeedback.notificationOccurred("success");
         }
+
+        setTimeout(() => {
+            nextDayCooldown = false;
+            nextDayButton.style.opacity = "1";
+            nextDayButton.style.pointerEvents = "auto";
+            nextDayButton.textContent = "Следующий день";
+        }, 3000);
     };
 }
 
