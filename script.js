@@ -75,7 +75,7 @@ const ALL_ACHIEVEMENTS = [
 ];
 
 function getRandomEvent() {
-    const isPositive = Math.random() < 0.5;
+    const isPositive = Math.random() < 0.55;
     const events = isPositive ? positiveEvents : negativeEvents;
     return events[Math.floor(Math.random() * events.length)];
 }
