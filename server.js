@@ -35,7 +35,6 @@ app.get("/api/save/:userId", (req, res) => {
             balance: 100000,
             deposit: 0,
             day: 1,
-            // НОВОЕ: Начальные значения
             crypto: 0,
             stocks: 0,
             cryptoPrice: 50000,
@@ -57,7 +56,6 @@ app.post("/api/save/:userId", (req, res) => {
         balance: Number(balance) || 100000,
         deposit: Number(deposit) || 0,
         day: Number(day) || 1,
-        // НОВОЕ: Сохраняем крипту и акции
         crypto: Number(crypto) || 0,
         stocks: Number(stocks) || 0,
         cryptoPrice: Number(cryptoPrice) || 50000,
