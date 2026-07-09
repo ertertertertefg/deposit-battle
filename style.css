@@ -18,6 +18,10 @@
     --text-muted: #3d6b70;
     --border: #1a3a42;
     --shadow: rgba(0, 0, 0, 0.4);
+    --green: #1a6b3a;
+    --green-hover: #238a4a;
+    --red: #6b1a1a;
+    --red-hover: #8a2323;
 }
 
 body {
@@ -189,14 +193,46 @@ button:active {
     transform: scale(0.98);
 }
 
-#depositButton {
-    background: var(--accent);
+/* ═══════════════════════════════════════ */
+/* ЗЕЛЁНЫЕ КНОПКИ — КУПИТЬ / ПОЛОЖИТЬ */
+/* ═══════════════════════════════════════ */
+
+#depositButton,
+#buyCryptoButton,
+#buyStockButton {
+    background: var(--green);
+    color: white;
 }
 
-#withdrawButton {
-    background: var(--bg-card-hover);
-    border: 1px solid var(--border);
+#depositButton:hover,
+#buyCryptoButton:hover,
+#buyStockButton:hover {
+    background: var(--green-hover);
+    transform: translateY(-1px);
 }
+
+/* ═══════════════════════════════════════ */
+/* КРАСНЫЕ КНОПКИ — ПРОДАТЬ / СНЯТЬ */
+/* ═══════════════════════════════════════ */
+
+#withdrawButton,
+#sellCryptoButton,
+#sellStockButton {
+    background: var(--red);
+    color: white;
+    border: none;
+}
+
+#withdrawButton:hover,
+#sellCryptoButton:hover,
+#sellStockButton:hover {
+    background: var(--red-hover);
+    transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════ */
+/* ОСТАЛЬНЫЕ КНОПКИ */
+/* ═══════════════════════════════════════ */
 
 #nextDayButton {
     background: var(--accent);
@@ -204,15 +240,8 @@ button:active {
     padding: 16px;
 }
 
-#buyCryptoButton,
-#buyStockButton {
-    background: var(--accent);
-}
-
-#sellCryptoButton,
-#sellStockButton {
-    background: var(--bg-card-hover);
-    border: 1px solid var(--border);
+#nextDayButton:hover {
+    background: var(--accent-light);
 }
 
 .tabs {
