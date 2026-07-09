@@ -8,15 +8,23 @@ let stocks = 0;
 let cryptoPrice = 50000;
 let stockPrice = 1000;
 
+// События только про крипту и акции (с множителями цен)
 const events = [
-    "📈 Акции сегодня выросли на 5%",
-    "📉 Криптовалюта упала на 8%",
-    "🏦 Центральный банк повысил ставку",
-    "💰 Вы нашли бонус 500 ₽",
-    "📰 Сегодня на рынке спокойно",
-    "🚀 Криптовалюта взлетела на 15%!",
-    "📉 Акции упали на 10%",
-    "💎 Редкий бонус: 1000 ₽"
+    { text: "🚀 Крипта взлетела на 25%!", crypto: 1.25, stock: 1.0 },
+    { text: "📉 Крипта обвалилась на 30%", crypto: 0.70, stock: 1.0 },
+    { text: "🏛️ SEC запретила крипту", crypto: 0.50, stock: 1.0 },
+    { text: "🌙 Маск твитнул про Doge", crypto: 1.15, stock: 1.0 },
+    { text: "💣 Хакнули биржу", crypto: 0.60, stock: 1.0 },
+    { text: "📈 Акции Tesla взлетели", crypto: 1.0, stock: 1.20 },
+    { text: "📉 Акции упали на 15%", crypto: 1.0, stock: 0.85 },
+    { text: "🏢 Компания обанкротилась", crypto: 1.0, stock: 0.40 },
+    { text: "🤝 Слияние гигантов", crypto: 1.0, stock: 1.30 },
+    { text: "📰 Скандал с CEO", crypto: 1.0, stock: 0.75 },
+    { text: "🌍 Глобальный кризис", crypto: 0.80, stock: 0.80 },
+    { text: "🚀 Бум технологий", crypto: 1.10, stock: 1.10 },
+    { text: "💎 Институционалы вошли в крипту", crypto: 1.35, stock: 1.0 },
+    { text: "🔥 Регулирование рынка", crypto: 1.0, stock: 0.90 },
+    { text: "🌟 Новый блокчейн", crypto: 1.50, stock: 1.0 }
 ];
 
 // ═══════════════════════════════════════
@@ -24,20 +32,15 @@ const events = [
 // ═══════════════════════════════════════
 
 function showTab(tabName) {
-    // Скрываем все вкладки
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
     
-    // Убираем активность со всех кнопок
     document.querySelectorAll('.tab-button').forEach(btn => {
         btn.classList.remove('active');
     });
     
-    // Показываем нужную вкладку
     document.getElementById('tab-' + tabName).classList.add('active');
-    
-    // Делаем кнопку активной
     event.target.classList.add('active');
 }
 
@@ -69,7 +72,7 @@ if (tg) {
 }
 
 // ═══════════════════════════════════════
-// ЭЛЕМЕНТЫ (с проверкой на null)
+// ЭЛЕМЕНТЫ
 // ═══════════════════════════════════════
 
 const money = document.getElementById("money");
@@ -82,7 +85,6 @@ const nextDayButton = document.getElementById("nextDayButton");
 const news = document.getElementById("news");
 const userNameText = document.getElementById("userName");
 
-// Крипта и акции
 const cryptoText = document.getElementById("crypto");
 const cryptoPriceText = document.getElementById("cryptoPrice");
 const cryptoInput = document.getElementById("cryptoInput");
@@ -313,31 +315,33 @@ if (nextDayButton) {
 
         day++;
 
+        // Доход по депозиту
         const percent = 0.01;
         const income = Math.floor(deposit * percent);
         deposit += income;
 
-        const cryptoChange = (Math.random() - 0.5) * 0.3;
-        cryptoPrice = Math.max(10000, Math.floor(cryptoPrice * (1 + cryptoChange)));
-        
-        const stockChange = (Math.random() - 0.5) * 0.2;
-        stockPrice = Math.max(100, Math.floor(stockPrice * (1 + stockChange)));
+        // Случайное событие
+        const event = events[Math.floor(Math.random() * events.length)];
 
-        const randomEvent = events[Math.floor(Math.random() * events.length)];
-
-        if (randomEvent.includes("бонус")) {
-            balance += 500;
-        }
-        if (randomEvent.includes("Редкий бонус")) {
-            balance += 1000;
-        }
+        // Применяем множители к ценам
+        cryptoPrice = Math.max(1000, Math.floor(cryptoPrice * event.crypto));
+        stockPrice = Math.max(50, Math.floor(stockPrice * event.stock));
 
         updateScreen();
 
-        let newsText = randomEvent + "<br>💸 Доход по депозиту: " + income.toLocaleString("ru-RU") + " ₽";
-        newsText += "<br>₿ Крипта: " + (cryptoChange > 0 ? "📈 +" : "📉 ") + Math.round(cryptoChange * 100) + "%";
-        newsText += "<br>📈 Акции: " + (stockChange > 0 ? "📈 +" : "📉 ") + Math.round(stockChange * 100) + "%";
+        // Формируем текст новостей
+        let newsText = event.text + "<br>💸 Доход по депозиту: " + income.toLocaleString("ru-RU") + " ₽";
         
+        if (event.crypto !== 1.0) {
+            const cryptoPercent = Math.round((event.crypto - 1) * 100);
+            newsText += "<br>₿ Крипта: " + (cryptoPercent > 0 ? "📈 +" : "📉 ") + cryptoPercent + "%";
+        }
+        
+        if (event.stock !== 1.0) {
+            const stockPercent = Math.round((event.stock - 1) * 100);
+            newsText += "<br>📈 Акции: " + (stockPercent > 0 ? "📈 +" : "📉 ") + stockPercent + "%";
+        }
+
         if (news) news.innerHTML = newsText;
 
         await saveProgress();
