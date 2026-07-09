@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Deposit Battle</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+    <div class="game">
+        <div class="card header-card">
+            <h1>💰 Deposit Battle</h1>
+            <p id="userName">Игрок</p>
+        </div>
+
+        <div class="card">
+            <h2>Баланс</h2>
+            <div id="money">100 000 ₽</div>
+        </div>
+
+        <div class="card">
+            <h2>Депозит</h2>
+            <div id="deposit">🏦 Депозит: 0 ₽</div>
+
+            <input
+                id="depositInput"
+                type="number"
+                placeholder="Введите сумму"
+                inputmode="numeric"
+            >
+
+            <button id="depositButton">Положить на депозит</button>
+        </div>
+
+        <div class="card">
+            <div id="day">📅 День: 1</div>
+            <button id="nextDayButton">Следующий день</button>
+        </div>
+
+        <div class="card">
+            <h2>Новости</h2>
+            <div id="news">📰 Добро пожаловать в игру!</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

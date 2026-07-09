@@ -1,0 +1,97 @@
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    background: var(--tg-theme-bg-color, #202124);
+    color: var(--tg-theme-text-color, #ffffff);
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+}
+
+.game {
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 16px;
+    padding-bottom: 90px;
+}
+
+.card {
+    background: var(--tg-theme-secondary-bg-color, #2f3136);
+    padding: 18px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+}
+
+.header-card {
+    text-align: center;
+}
+
+h1 {
+    margin: 0 0 8px;
+    font-size: 26px;
+}
+
+h2 {
+    margin: 0 0 12px;
+    font-size: 20px;
+}
+
+#userName {
+    margin: 0;
+    opacity: 0.8;
+}
+
+#money {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+#deposit,
+#day {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+input {
+    width: 100%;
+    margin-top: 14px;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    outline: none;
+    background: var(--tg-theme-bg-color, #202124);
+    color: var(--tg-theme-text-color, #ffffff);
+    font-size: 17px;
+}
+
+input::placeholder {
+    color: var(--tg-theme-hint-color, #9aa0a6);
+}
+
+button {
+    width: 100%;
+    margin-top: 12px;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: var(--tg-theme-button-color, #4CAF50);
+    color: var(--tg-theme-button-text-color, #ffffff);
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+#news {
+    min-height: 70px;
+    font-size: 18px;
+    line-height: 1.5;
+}
