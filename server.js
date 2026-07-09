@@ -30,18 +30,27 @@ app.get("/api/save/:userId", (req, res) => {
     const saves = readSaves();
     const userId = req.params.userId;
 
-    if (!saves[userId]) {
-        saves[userId] = {
-            balance: 100000,
-            deposit: 0,
-            day: 1,
-            crypto: 0,
-            stocks: 0,
-            cryptoPrice: 50000,
-            stockPrice: 1000
-        };
-        writeSaves(saves);
+    // Если есть сохранение для этого userId — отдаём его
+    if (saves[userId]) {
+        return res.json(saves[userId]);
     }
+
+    // Если нет сохранения для этого userId, но есть для guest — отдаём guest
+    if (saves["guest"]) {
+        return res.json(saves["guest"]);
+    }
+
+    // Если нет ничего — создаём новое
+    saves[userId] = {
+        balance: 100000,
+        deposit: 0,
+        day: 1,
+        crypto: 0,
+        stocks: 0,
+        cryptoPrice: 50000,
+        stockPrice: 1000
+    };
+    writeSaves(saves);
 
     res.json(saves[userId]);
 });
