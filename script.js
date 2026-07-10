@@ -648,13 +648,15 @@ function activateBoost(boostId) {
             break;
             
         case 'prediction':
-            const nextEvent = getRandomEvent();
-            activeBoosts.prediction = {
-                active: true,
-                nextEvent: nextEvent
-            };
-            addNews("🔮 Предсказание куплено! Смотри в ЦУМе");
-            break;
+    // Генерируем событие ЗАРАНЕЕ и сохраняем
+    const predictedEvent = getRandomEvent();
+    activeBoosts.prediction = {
+        active: true,
+        nextEvent: predictedEvent,
+        used: false  // Флаг что ещё не использовали
+    };
+    addNews("🔮 Предсказание куплено! Смотри в ЦУМе");
+    break;
     }
     
     updateBoostTimers();
@@ -696,7 +698,7 @@ function updateBoostTimers() {
     const predPreview = document.getElementById('predictionPreview');
     const predCard = predPreview?.closest('.boost-card');
     
-    if (activeBoosts.prediction.active && activeBoosts.prediction.nextEvent) {
+    if (activeBoosts.prediction.active && activeBoosts.prediction.nextEvent && !activeBoosts.prediction.used) {
         const ev = activeBoosts.prediction.nextEvent;
         let text = `🔮 Завтра: ${ev.text}`;
         if (ev.crypto !== 1.0) text += `\n₿: ${Math.round((ev.crypto-1)*100)}%`;
@@ -855,20 +857,29 @@ if (nextDayButton) {
         day++;
         
         let event;
-        if (activeBoosts.goldenDay.active && activeBoosts.goldenDay.daysLeft > 0) {
-            event = positiveEvents[Math.floor(Math.random() * positiveEvents.length)];
-            activeBoosts.goldenDay.daysLeft--;
-            if (activeBoosts.goldenDay.daysLeft <= 0) {
-                activeBoosts.goldenDay = { active: false, daysLeft: 0 };
-                addNews("🍀 Золотой день закончился!");
-            }
-        } else {
-            event = getRandomEvent();
-        }
+
+// Если есть предсказание и оно ещё не использовано — используем его!
+if (activeBoosts.prediction.active && activeBoosts.prediction.nextEvent && !activeBoosts.prediction.used) {
+    event = activeBoosts.prediction.nextEvent;
+    activeBoosts.prediction.used = true;  // Помечаем использованным
+    addNews("🔮 Предсказание сбылось!");
+} 
+// Золотой день
+else if (activeBoosts.goldenDay.active && activeBoosts.goldenDay.daysLeft > 0) {
+    event = positiveEvents[Math.floor(Math.random() * positiveEvents.length)];
+    activeBoosts.goldenDay.daysLeft--;
+    if (activeBoosts.goldenDay.daysLeft <= 0) {
+        activeBoosts.goldenDay = { active: false, daysLeft: 0 };
+        addNews("🍀 Золотой день закончился!");
+    }
+} else {
+    event = getRandomEvent();
+}
         
-        if (activeBoosts.prediction.active) {
-            activeBoosts.prediction = { active: false, nextEvent: null };
-        }
+        
+         if (activeBoosts.prediction.active && activeBoosts.prediction.used) {
+    activeBoosts.prediction = { active: false, nextEvent: null, used: false };
+}
         
         deposit += Math.floor(deposit * 0.01);
         
