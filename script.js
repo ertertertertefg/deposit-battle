@@ -6,6 +6,13 @@ const INITIAL_STOCKS = 0;
 const INITIAL_CRYPTO_PRICE = 23000;
 const INITIAL_STOCK_PRICE = 1000;
 
+// Цены бустов в USDT
+const BOOST_PRICES = {
+    speedWork: 0.5,
+    goldenDay: 0.75,
+    prediction: 0.25
+};
+
 let balance = INITIAL_BALANCE;
 let deposit = INITIAL_DEPOSIT;
 let day = INITIAL_DAY;
@@ -26,7 +33,6 @@ let cryptoHistory = [];
 let stockHistory = [];
 const MAX_HISTORY = 30;
 
-// ═══════ БУСТЫ ═══════
 let activeBoosts = {
     speedWork: { active: false, expires: null },
     goldenDay: { active: false, daysLeft: 0 },
@@ -217,7 +223,6 @@ function updateScreen() {
     updateAchPreview();
     updateBoostTimers();
     
-    // Обновляем модалку если открыта
     const modal = document.getElementById('achModal');
     if (modal && modal.classList.contains('active')) {
         renderAchModal();
@@ -493,7 +498,6 @@ function renderAchModal() {
     list.innerHTML = html;
 }
 
-// Закрытие по клику на затемнённую область
 document.addEventListener('click', function(e) {
     const modal = document.getElementById('achModal');
     if (modal && e.target === modal) {
@@ -501,34 +505,126 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Закрытие по Escape
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeAchModal();
 });
 
-// ═══════ ЦУМ — БУСТЫ ═══════
+// ═══════ ЦУМ — БУСТЫ С ОПЛАТОЙ USDT ═══════
 
-function buyBoost(boostId, price) {
-    // Проверяем, не активен ли уже
-    if (activeBoosts[boostId]?.active) {
-        tg?.showAlert("Буст уже активен!");
-        return;
-    }
-
-    // Показываем подтверждение
+async function buyBoost(boostId) {
+    const priceUSD = BOOST_PRICES[boostId];
     const boostNames = {
         speedWork: "⚡ Ускоритель работы",
         goldenDay: "🍀 Золотой день",
         prediction: "🔮 Предсказание"
     };
 
-    if (!confirm(`Купить ${boostNames[boostId]} за ${price} ⭐?`)) return;
+    // Проверяем активен ли
+    if (activeBoosts[boostId]?.active) {
+        tg?.showAlert("Буст уже активен!");
+        return;
+    }
 
-    // Пока демо-режим — без реальных Stars
-    // В продакшене здесь tg.openInvoice(...)
-    activateBoost(boostId);
+    // Проверяем неоплаченный буст
+    try {
+        const checkRes = await fetch(`/api/check-crypto-payment/${userId}`);
+        const checkData = await checkRes.json();
+        
+        if (checkData.paid || checkData.demo) {
+            const activateRes = await fetch(`/api/activate-crypto-boost/${userId}`, {
+                method: "POST"
+            });
+            const activateData = await activateRes.json();
+            if (activateData.success) {
+                activateBoost(boostId);
+                tg?.showAlert("✅ Буст активирован!");
+                return;
+            }
+        }
+    } catch (e) {}
+
+    // Создаём счёт
+    try {
+        const response = await fetch("/api/create-crypto-invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, boostId, priceUSD })
+        });
+        
+        const data = await response.json();
+        
+        if (data.demo) {
+            // Демо-режим — бесплатно
+            if (confirm(`💰 ДЕМО-РЕЖИМ\nАктивировать ${boostNames[boostId]} бесплатно?`)) {
+                activateBoost(boostId);
+                saveProgress();
+            }
+            return;
+        }
+        
+        if (data.success && data.payUrl) {
+            // Открываем CryptoBot для оплаты
+            if (tg?.openTelegramLink) {
+                tg.openTelegramLink(data.payUrl);
+                showPaymentCheck(boostId);
+            } else {
+                window.open(data.payUrl, '_blank');
+                showPaymentCheck(boostId);
+            }
+        } else {
+            tg?.showAlert("❌ Ошибка создания счёта");
+        }
+    } catch (error) {
+        console.error(error);
+        // Fallback: демо
+        if (confirm(`💰 ДЕМО\nАктивировать ${boostNames[boostId]} бесплатно?`)) {
+            activateBoost(boostId);
+            saveProgress();
+        }
+    }
+}
+
+function showPaymentCheck(boostId) {
+    // Удаляем старую модалку если есть
+    document.querySelector('.payment-check-modal')?.remove();
     
-    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+    const modal = document.createElement('div');
+    modal.className = 'payment-check-modal';
+    modal.innerHTML = `
+        <div class="payment-check-box">
+            <div class="icon">⏳</div>
+            <div class="title">Оплата в CryptoBot</div>
+            <div class="desc">Оплатите счёт в @CryptoBot, затем нажмите "Проверить"</div>
+            <button class="btn-primary" onclick="checkPayment('${boostId}')">✅ Проверить оплату</button>
+            <button class="btn-secondary" onclick="this.closest('.payment-check-modal').remove()">Отмена</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function checkPayment(boostId) {
+    try {
+        const res = await fetch(`/api/check-crypto-payment/${userId}`);
+        const data = await res.json();
+        
+        if (data.paid || data.demo) {
+            const activateRes = await fetch(`/api/activate-crypto-boost/${userId}`, {
+                method: "POST"
+            });
+            const activateData = await activateRes.json();
+            
+            if (activateData.success) {
+                activateBoost(boostId);
+                document.querySelector('.payment-check-modal')?.remove();
+                tg?.showAlert("✅ Оплата прошла! Буст активирован!");
+                saveProgress();
+            }
+        } else {
+            tg?.showAlert("⏳ Оплата ещё не поступила. Попробуйте через минуту.");
+        }
+    } catch (e) {
+        tg?.showAlert("❌ Ошибка проверки");
+    }
 }
 
 function activateBoost(boostId) {
@@ -538,7 +634,7 @@ function activateBoost(boostId) {
         case 'speedWork':
             activeBoosts.speedWork = {
                 active: true,
-                expires: now + 20 * 60 * 1000 // 20 минут
+                expires: now + 20 * 60 * 1000
             };
             addNews("⚡ Ускоритель работы активирован! 20 мин без кулдауна");
             break;
@@ -552,7 +648,6 @@ function activateBoost(boostId) {
             break;
             
         case 'prediction':
-            // Генерируем предсказание
             const nextEvent = getRandomEvent();
             activeBoosts.prediction = {
                 active: true,
@@ -567,7 +662,6 @@ function activateBoost(boostId) {
 }
 
 function updateBoostTimers() {
-    // Ускоритель работы
     const speedTimer = document.getElementById('speedWorkTimer');
     const speedCard = speedTimer?.closest('.boost-card');
     
@@ -588,7 +682,6 @@ function updateBoostTimers() {
         speedCard?.classList.remove('active');
     }
     
-    // Золотой день
     const goldenTimer = document.getElementById('goldenDayTimer');
     const goldenCard = goldenTimer?.closest('.boost-card');
     
@@ -600,7 +693,6 @@ function updateBoostTimers() {
         goldenCard?.classList.remove('active');
     }
     
-    // Предсказание
     const predPreview = document.getElementById('predictionPreview');
     const predCard = predPreview?.closest('.boost-card');
     
@@ -619,7 +711,6 @@ function updateBoostTimers() {
     }
 }
 
-// Обновляем таймеры каждую секунду
 setInterval(updateBoostTimers, 1000);
 
 // ═══════ ОБРАБОТЧИКИ ═══════
@@ -717,7 +808,6 @@ if (sellStockButton) {
 let workCooldown = false;
 if (workButton) {
     workButton.onclick = async function () {
-        // Проверяем ускоритель
         const hasSpeedBoost = activeBoosts.speedWork.active && 
             activeBoosts.speedWork.expires > Date.now();
         
@@ -764,7 +854,6 @@ if (nextDayButton) {
         
         day++;
         
-        // Учёт золотого дня
         let event;
         if (activeBoosts.goldenDay.active && activeBoosts.goldenDay.daysLeft > 0) {
             event = positiveEvents[Math.floor(Math.random() * positiveEvents.length)];
@@ -777,7 +866,6 @@ if (nextDayButton) {
             event = getRandomEvent();
         }
         
-        // Сбрасываем предсказание
         if (activeBoosts.prediction.active) {
             activeBoosts.prediction = { active: false, nextEvent: null };
         }
@@ -832,7 +920,6 @@ if (restartButton) {
 
 if (refreshLeaderboardBtn) refreshLeaderboardBtn.onclick = loadLeaderboard;
 
-// Вешаем клик на блок ачивок на главном экране
 const achBlock = document.getElementById('achievementsBlock');
 if (achBlock) {
     achBlock.addEventListener('click', openAchModal);

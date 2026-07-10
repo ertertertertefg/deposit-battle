@@ -123,38 +123,44 @@
             <button id="refreshLeaderboard" class="refresh-btn">🔄 Обновить</button>
         </div>
 
-        <!-- ═══════ ВКЛАДКА ЦУМ (МАГАЗИН) ═══════ -->
+        <!-- ═══════ ВКЛАДКА ЦУМ (МАГАЗИН USDT) ═══════ -->
         <div id="tab-shop" class="tab-content">
-            <div class="section-title">💎 ЦУМ — Бусты</div>
+            <div class="section-title">💎 ЦУМ — Бусты за USDT</div>
             
-            <div class="boost-card" onclick="buyBoost('speedWork', 10)">
+            <div class="boost-card" onclick="buyBoost('speedWork')">
                 <div class="boost-header">
                     <div class="boost-icon">⚡</div>
-                    <div class="boost-price">10 ⭐</div>
+                    <div class="boost-price">0.5 USDT</div>
                 </div>
                 <div class="boost-name">Ускоритель работы</div>
                 <div class="boost-desc">Работа без кулдауна 20 минут</div>
                 <div class="boost-timer" id="speedWorkTimer"></div>
             </div>
 
-            <div class="boost-card" onclick="buyBoost('goldenDay', 15)">
+            <div class="boost-card" onclick="buyBoost('goldenDay')">
                 <div class="boost-header">
                     <div class="boost-icon">🍀</div>
-                    <div class="boost-price">15 ⭐</div>
+                    <div class="boost-price">0.75 USDT</div>
                 </div>
                 <div class="boost-name">Золотой день</div>
                 <div class="boost-desc">Следующие 5 дней — только положительные события</div>
                 <div class="boost-timer" id="goldenDayTimer"></div>
             </div>
 
-            <div class="boost-card" onclick="buyBoost('prediction', 5)">
+            <div class="boost-card" onclick="buyBoost('prediction')">
                 <div class="boost-header">
                     <div class="boost-icon">🔮</div>
-                    <div class="boost-price">5 ⭐</div>
+                    <div class="boost-price">0.25 USDT</div>
                 </div>
                 <div class="boost-name">Предсказание</div>
                 <div class="boost-desc">Узнать событие следующего дня заранее</div>
                 <div class="boost-preview" id="predictionPreview"></div>
+            </div>
+
+            <div class="payment-info">
+                <div class="payment-icon">💰</div>
+                <div class="payment-text">Оплата через <b>@CryptoBot</b></div>
+                <div class="payment-sub">Быстро, безопасно, комиссия 1%</div>
             </div>
         </div>
 
@@ -165,9 +171,7 @@
                     <h2>🏆 Достижения</h2>
                     <button class="modal-close" onclick="closeAchModal()">✕</button>
                 </div>
-                <div id="achModalList" class="ach-modal-list">
-                    <!-- Ачивки сюда вставляются JS-ом -->
-                </div>
+                <div id="achModalList" class="ach-modal-list"></div>
             </div>
         </div>
 
