@@ -33,6 +33,23 @@ if (!userId) {
     localStorage.setItem("depositBattleUserId", userId);
 }
 
+const RANKS = [
+    { min: 0, icon: "🥚", name: "Бомж", color: "#6a9a9e" },
+    { min: 50000, icon: "🧢", name: "Школьник", color: "#3db8c4" },
+    { min: 200000, icon: "💼", name: "Менеджер", color: "#2a8a9a" },
+    { min: 1000000, icon: "🕴️", name: "Бизнесмен", color: "#ffa502" },
+    { min: 10000000, icon: "👑", name: "Олигарх", color: "#ffd700" }
+];
+
+function getRank(totalAssets) {
+    for (let i = RANKS.length - 1; i >= 0; i--) {
+        if (totalAssets >= RANKS[i].min) {
+            return RANKS[i];
+        }
+    }
+    return RANKS[0];
+}
+
 const positiveEvents = [
     { text: "🚀 Крипта взлетела на 25%!", crypto: 1.25, stock: 1.0 },
     { text: "🌟 Новый блокчейн запущен", crypto: 1.50, stock: 1.0 },
@@ -126,6 +143,7 @@ const nextDayButton = document.getElementById("nextDayButton");
 const restartButton = document.getElementById("restartButton");
 const news = document.getElementById("news");
 const userNameText = document.getElementById("userName");
+const userRankText = document.getElementById("userRank");
 const loginStreakText = document.getElementById("loginStreak");
 const dailyBonusText = document.getElementById("dailyBonus");
 
@@ -155,6 +173,17 @@ function addNews(text) {
     if (news) news.textContent = text;
 }
 
+function updateRank() {
+    const totalAssets = balance + deposit + (crypto * cryptoPrice) + (stocks * stockPrice);
+    const rank = getRank(totalAssets);
+    
+    if (userRankText) {
+        userRankText.textContent = `${rank.icon} ${rank.name}`;
+        userRankText.style.color = rank.color;
+        userRankText.style.borderColor = rank.color;
+    }
+}
+
 function updateScreen() {
     if (money) money.textContent = balance.toLocaleString("ru-RU") + " ₽";
     if (depositText) depositText.textContent = "🏦 Депозит: " + deposit.toLocaleString("ru-RU") + " ₽";
@@ -165,6 +194,8 @@ function updateScreen() {
     if (cryptoPriceText) cryptoPriceText.textContent = "💰 Цена: " + cryptoPrice.toLocaleString("ru-RU") + " ₽ за 1 ₿";
     if (stocksText) stocksText.textContent = "📈 Акции: " + stocks + " шт.";
     if (stockPriceText) stockPriceText.textContent = "💰 Цена: " + stockPrice.toLocaleString("ru-RU") + " ₽ за 1 акцию";
+    
+    updateRank();
 }
 
 function initHistory() {
