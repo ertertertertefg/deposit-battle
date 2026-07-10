@@ -174,7 +174,7 @@ function updateAchPreview() {
     if (!achievementsPreview) return;
     
     if (achievements.length === 0) {
-        achievementsPreview.innerHTML = '<div class="ach-preview-empty">Пока нет ачивок</div>';
+        achievementsPreview.innerHTML = '<div class="ach-preview-empty">Пока нет ачивок — жми, чтобы увидеть все!</div>';
         return;
     }
     
@@ -208,6 +208,12 @@ function updateScreen() {
     
     updateRank();
     updateAchPreview();
+    
+    // Обновляем модалку если открыта
+    const modal = document.getElementById('achModal');
+    if (modal && modal.classList.contains('active')) {
+        renderAchModal();
+    }
 }
 
 function initHistory() {
@@ -432,6 +438,60 @@ async function loadLeaderboard() {
     }
 }
 
+// ═══════ МОДАЛЬНОЕ ОКНО АЧИВОК ═══════
+
+function openAchModal() {
+    const modal = document.getElementById('achModal');
+    if (!modal) return;
+    renderAchModal();
+    modal.classList.add('active');
+    if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+}
+
+function closeAchModal() {
+    const modal = document.getElementById('achModal');
+    if (modal) modal.classList.remove('active');
+}
+
+function renderAchModal() {
+    const list = document.getElementById('achModalList');
+    if (!list) return;
+    
+    let html = '';
+    
+    ALL_ACHIEVEMENTS.forEach(ach => {
+        const isUnlocked = achievements.includes(ach.id);
+        const status = isUnlocked ? '✅' : '🔒';
+        const cssClass = isUnlocked ? 'unlocked' : 'locked';
+        
+        html += `
+            <div class="ach-item ${cssClass}">
+                <div class="ach-icon-big">${ach.icon}</div>
+                <div class="ach-info">
+                    <div class="ach-name">${ach.name}</div>
+                    <div class="ach-desc">${ach.desc}</div>
+                </div>
+                <div class="ach-status">${status}</div>
+            </div>
+        `;
+    });
+    
+    list.innerHTML = html;
+}
+
+// Закрытие по клику на затемнённую область
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('achModal');
+    if (modal && e.target === modal) {
+        closeAchModal();
+    }
+});
+
+// Закрытие по Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAchModal();
+});
+
 // ═══════ ОБРАБОТЧИКИ ═══════
 
 if (depositButton) {
@@ -605,5 +665,11 @@ if (restartButton) {
 }
 
 if (refreshLeaderboardBtn) refreshLeaderboardBtn.onclick = loadLeaderboard;
+
+// Вешаем клик на блок ачивок на главном экране
+const achBlock = document.getElementById('achievementsBlock');
+if (achBlock) {
+    achBlock.addEventListener('click', openAchModal);
+}
 
 loadProgress();

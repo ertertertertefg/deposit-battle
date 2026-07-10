@@ -43,10 +43,10 @@
 
             <button id="nextDayButton" class="main-action-btn">➡️ Следующий день</button>
 
-            <div class="achievements-preview">
+            <div class="achievements-preview" id="achievementsBlock">
                 <h3>🏆 Последние ачивки</h3>
                 <div id="achievementsPreview" class="ach-preview-list">
-                    <div class="ach-preview-empty">Пока нет ачивок</div>
+                    <div class="ach-preview-empty">Пока нет ачивок — жми, чтобы увидеть все!</div>
                 </div>
             </div>
         </div>
@@ -121,6 +121,19 @@
                 <div class="loading">Загрузка...</div>
             </div>
             <button id="refreshLeaderboard" class="refresh-btn">🔄 Обновить</button>
+        </div>
+
+        <!-- ═══════ МОДАЛЬНОЕ ОКНО АЧИВОК ═══════ -->
+        <div id="achModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🏆 Достижения</h2>
+                    <button class="modal-close" onclick="closeAchModal()">✕</button>
+                </div>
+                <div id="achModalList" class="ach-modal-list">
+                    <!-- Ачивки сюда вставляются JS-ом -->
+                </div>
+            </div>
         </div>
 
         <!-- ═══════ НОВОСТИ ═══════ -->
