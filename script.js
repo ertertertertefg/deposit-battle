@@ -26,6 +26,13 @@ let cryptoHistory = [];
 let stockHistory = [];
 const MAX_HISTORY = 30;
 
+// ═══════ БУСТЫ ═══════
+let activeBoosts = {
+    speedWork: { active: false, expires: null },
+    goldenDay: { active: false, daysLeft: 0 },
+    prediction: { active: false, nextEvent: null }
+};
+
 let userId = localStorage.getItem("depositBattleUserId");
 if (!userId) {
     userId = "guest_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -208,6 +215,7 @@ function updateScreen() {
     
     updateRank();
     updateAchPreview();
+    updateBoostTimers();
     
     // Обновляем модалку если открыта
     const modal = document.getElementById('achModal');
@@ -372,6 +380,11 @@ async function loadProgress() {
         cryptoHoldDays = data.cryptoHoldDays || 0;
         cryptoHistory = data.cryptoHistory || [];
         stockHistory = data.stockHistory || [];
+        activeBoosts = data.activeBoosts || {
+            speedWork: { active: false, expires: null },
+            goldenDay: { active: false, daysLeft: 0 },
+            prediction: { active: false, nextEvent: null }
+        };
 
         initHistory();
         updateScreen();
@@ -394,7 +407,8 @@ async function saveProgress() {
             body: JSON.stringify({
                 balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice,
                 userName, achievements, lastLoginDate, loginStreak,
-                tradeCount, cryptoHoldDays, cryptoHistory, stockHistory
+                tradeCount, cryptoHoldDays, cryptoHistory, stockHistory,
+                activeBoosts
             })
         });
     } catch (error) {
@@ -492,6 +506,122 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeAchModal();
 });
 
+// ═══════ ЦУМ — БУСТЫ ═══════
+
+function buyBoost(boostId, price) {
+    // Проверяем, не активен ли уже
+    if (activeBoosts[boostId]?.active) {
+        tg?.showAlert("Буст уже активен!");
+        return;
+    }
+
+    // Показываем подтверждение
+    const boostNames = {
+        speedWork: "⚡ Ускоритель работы",
+        goldenDay: "🍀 Золотой день",
+        prediction: "🔮 Предсказание"
+    };
+
+    if (!confirm(`Купить ${boostNames[boostId]} за ${price} ⭐?`)) return;
+
+    // Пока демо-режим — без реальных Stars
+    // В продакшене здесь tg.openInvoice(...)
+    activateBoost(boostId);
+    
+    if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+}
+
+function activateBoost(boostId) {
+    const now = Date.now();
+    
+    switch(boostId) {
+        case 'speedWork':
+            activeBoosts.speedWork = {
+                active: true,
+                expires: now + 20 * 60 * 1000 // 20 минут
+            };
+            addNews("⚡ Ускоритель работы активирован! 20 мин без кулдауна");
+            break;
+            
+        case 'goldenDay':
+            activeBoosts.goldenDay = {
+                active: true,
+                daysLeft: 5
+            };
+            addNews("🍀 Золотой день! Следующие 5 дней — только удача!");
+            break;
+            
+        case 'prediction':
+            // Генерируем предсказание
+            const nextEvent = getRandomEvent();
+            activeBoosts.prediction = {
+                active: true,
+                nextEvent: nextEvent
+            };
+            addNews("🔮 Предсказание куплено! Смотри в ЦУМе");
+            break;
+    }
+    
+    updateBoostTimers();
+    saveProgress();
+}
+
+function updateBoostTimers() {
+    // Ускоритель работы
+    const speedTimer = document.getElementById('speedWorkTimer');
+    const speedCard = speedTimer?.closest('.boost-card');
+    
+    if (activeBoosts.speedWork.active && activeBoosts.speedWork.expires) {
+        const remaining = activeBoosts.speedWork.expires - Date.now();
+        if (remaining > 0) {
+            const mins = Math.floor(remaining / 60000);
+            const secs = Math.floor((remaining % 60000) / 1000);
+            speedTimer.textContent = `⏱️ Осталось: ${mins}м ${secs}с`;
+            speedCard?.classList.add('active');
+        } else {
+            activeBoosts.speedWork = { active: false, expires: null };
+            speedTimer.textContent = '';
+            speedCard?.classList.remove('active');
+        }
+    } else if (speedTimer) {
+        speedTimer.textContent = '';
+        speedCard?.classList.remove('active');
+    }
+    
+    // Золотой день
+    const goldenTimer = document.getElementById('goldenDayTimer');
+    const goldenCard = goldenTimer?.closest('.boost-card');
+    
+    if (activeBoosts.goldenDay.active && activeBoosts.goldenDay.daysLeft > 0) {
+        goldenTimer.textContent = `📅 Осталось дней: ${activeBoosts.goldenDay.daysLeft}`;
+        goldenCard?.classList.add('active');
+    } else if (goldenTimer) {
+        goldenTimer.textContent = '';
+        goldenCard?.classList.remove('active');
+    }
+    
+    // Предсказание
+    const predPreview = document.getElementById('predictionPreview');
+    const predCard = predPreview?.closest('.boost-card');
+    
+    if (activeBoosts.prediction.active && activeBoosts.prediction.nextEvent) {
+        const ev = activeBoosts.prediction.nextEvent;
+        let text = `🔮 Завтра: ${ev.text}`;
+        if (ev.crypto !== 1.0) text += `\n₿: ${Math.round((ev.crypto-1)*100)}%`;
+        if (ev.stock !== 1.0) text += `\n📈: ${Math.round((ev.stock-1)*100)}%`;
+        predPreview.textContent = text;
+        predPreview.classList.add('visible');
+        predCard?.classList.add('active');
+    } else if (predPreview) {
+        predPreview.textContent = '';
+        predPreview.classList.remove('visible');
+        predCard?.classList.remove('active');
+    }
+}
+
+// Обновляем таймеры каждую секунду
+setInterval(updateBoostTimers, 1000);
+
 // ═══════ ОБРАБОТЧИКИ ═══════
 
 if (depositButton) {
@@ -587,25 +717,37 @@ if (sellStockButton) {
 let workCooldown = false;
 if (workButton) {
     workButton.onclick = async function () {
-        if (workCooldown) { tg?.showAlert("Подождите!"); return; }
+        // Проверяем ускоритель
+        const hasSpeedBoost = activeBoosts.speedWork.active && 
+            activeBoosts.speedWork.expires > Date.now();
+        
+        if (workCooldown && !hasSpeedBoost) { 
+            tg?.showAlert("Подождите!"); 
+            return; 
+        }
+        
         balance += 5000;
         updateScreen();
         addNews("💼 +5 000 ₽ за работу");
-        workCooldown = true;
-        workButton.disabled = true;
-        workButton.textContent = "Перерыв...";
-        let remaining = 30;
-        const timer = setInterval(() => {
-            remaining--;
-            if (workTimer) workTimer.textContent = `⏱️ ${remaining}сек`;
-            if (remaining <= 0) {
-                clearInterval(timer);
-                workCooldown = false;
-                workButton.disabled = false;
-                workButton.textContent = "Работать";
-                if (workTimer) workTimer.textContent = "";
-            }
-        }, 1000);
+        
+        if (!hasSpeedBoost) {
+            workCooldown = true;
+            workButton.disabled = true;
+            workButton.textContent = "Перерыв...";
+            let remaining = 30;
+            const timer = setInterval(() => {
+                remaining--;
+                if (workTimer) workTimer.textContent = `⏱️ ${remaining}сек`;
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    workCooldown = false;
+                    workButton.disabled = false;
+                    workButton.textContent = "Работать";
+                    if (workTimer) workTimer.textContent = "";
+                }
+            }, 1000);
+        }
+        
         await saveProgress();
         if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
     };
@@ -621,8 +763,27 @@ if (nextDayButton) {
         nextDayButton.textContent = "⏳...";
         
         day++;
+        
+        // Учёт золотого дня
+        let event;
+        if (activeBoosts.goldenDay.active && activeBoosts.goldenDay.daysLeft > 0) {
+            event = positiveEvents[Math.floor(Math.random() * positiveEvents.length)];
+            activeBoosts.goldenDay.daysLeft--;
+            if (activeBoosts.goldenDay.daysLeft <= 0) {
+                activeBoosts.goldenDay = { active: false, daysLeft: 0 };
+                addNews("🍀 Золотой день закончился!");
+            }
+        } else {
+            event = getRandomEvent();
+        }
+        
+        // Сбрасываем предсказание
+        if (activeBoosts.prediction.active) {
+            activeBoosts.prediction = { active: false, nextEvent: null };
+        }
+        
         deposit += Math.floor(deposit * 0.01);
-        const event = getRandomEvent();
+        
         if (event.crypto > 1.0) positiveStreak++; else positiveStreak = 0;
         cryptoPrice = Math.max(1000, Math.floor(cryptoPrice * event.crypto));
         stockPrice = Math.max(50, Math.floor(stockPrice * event.stock));
@@ -658,6 +819,11 @@ if (restartButton) {
         achievements = []; lastLoginDate = null; loginStreak = 0;
         tradeCount = 0; cryptoHoldDays = 0; hasCrypto = false;
         cryptoHistory = []; stockHistory = [];
+        activeBoosts = {
+            speedWork: { active: false, expires: null },
+            goldenDay: { active: false, daysLeft: 0 },
+            prediction: { active: false, nextEvent: null }
+        };
         initHistory(); updateScreen(); updateCharts();
         addNews("🔄 Рестарт!");
         await saveProgress();

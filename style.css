@@ -14,6 +14,7 @@
     --accent-red: #ff4757;
     --accent-blue: #3742fa;
     --accent-gold: #ffa502;
+    --accent-purple: #a55eea;
     --text-primary: #ffffff;
     --text-secondary: #a0a0b0;
     --text-muted: #6a6a7a;
@@ -452,6 +453,107 @@ button:active {
     color: white;
 }
 
+/* ═══════ ЦУМ — БУСТЫ ═══════ */
+
+.boost-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.boost-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-gold);
+    box-shadow: 0 8px 24px rgba(255, 165, 2, 0.15);
+}
+
+.boost-card:active {
+    transform: scale(0.98);
+}
+
+.boost-card.active {
+    border-color: var(--accent-green);
+    background: rgba(0, 210, 106, 0.05);
+}
+
+.boost-card.active::before {
+    content: "✓ АКТИВНО";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--accent-green);
+    background: rgba(0, 210, 106, 0.15);
+    padding: 4px 8px;
+    border-radius: 6px;
+    letter-spacing: 1px;
+}
+
+.boost-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.boost-icon {
+    font-size: 40px;
+}
+
+.boost-price {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--accent-gold);
+    background: rgba(255, 165, 2, 0.1);
+    padding: 8px 16px;
+    border-radius: 12px;
+}
+
+.boost-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.boost-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.boost-timer {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--accent-green);
+    font-weight: 600;
+    min-height: 18px;
+}
+
+.boost-preview {
+    margin-top: 10px;
+    padding: 12px;
+    background: rgba(165, 94, 234, 0.1);
+    border: 1px solid rgba(165, 94, 234, 0.3);
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--accent-purple);
+    min-height: 40px;
+    display: none;
+}
+
+.boost-preview.visible {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
 /* ═══════ НОВОСТИ ═══════ */
 
 .news-bar {
@@ -503,7 +605,7 @@ button:active {
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    padding: 8px;
+    padding: 8px 4px;
     background: transparent;
     border: none;
     color: var(--text-muted);
@@ -521,11 +623,11 @@ button:active {
 }
 
 .nav-icon {
-    font-size: 24px;
+    font-size: 22px;
 }
 
 .nav-label {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -716,5 +818,7 @@ button:active {
 @media (max-width: 400px) {
     .hero-avatar { font-size: 60px; }
     .balance-amount { font-size: 30px; }
-    .nav-icon { font-size: 22px; }
+    .nav-icon { font-size: 20px; }
+    .nav-label { font-size: 8px; }
+    .boost-icon { font-size: 32px; }
 }

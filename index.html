@@ -123,6 +123,41 @@
             <button id="refreshLeaderboard" class="refresh-btn">🔄 Обновить</button>
         </div>
 
+        <!-- ═══════ ВКЛАДКА ЦУМ (МАГАЗИН) ═══════ -->
+        <div id="tab-shop" class="tab-content">
+            <div class="section-title">💎 ЦУМ — Бусты</div>
+            
+            <div class="boost-card" onclick="buyBoost('speedWork', 10)">
+                <div class="boost-header">
+                    <div class="boost-icon">⚡</div>
+                    <div class="boost-price">10 ⭐</div>
+                </div>
+                <div class="boost-name">Ускоритель работы</div>
+                <div class="boost-desc">Работа без кулдауна 20 минут</div>
+                <div class="boost-timer" id="speedWorkTimer"></div>
+            </div>
+
+            <div class="boost-card" onclick="buyBoost('goldenDay', 15)">
+                <div class="boost-header">
+                    <div class="boost-icon">🍀</div>
+                    <div class="boost-price">15 ⭐</div>
+                </div>
+                <div class="boost-name">Золотой день</div>
+                <div class="boost-desc">Следующие 5 дней — только положительные события</div>
+                <div class="boost-timer" id="goldenDayTimer"></div>
+            </div>
+
+            <div class="boost-card" onclick="buyBoost('prediction', 5)">
+                <div class="boost-header">
+                    <div class="boost-icon">🔮</div>
+                    <div class="boost-price">5 ⭐</div>
+                </div>
+                <div class="boost-name">Предсказание</div>
+                <div class="boost-desc">Узнать событие следующего дня заранее</div>
+                <div class="boost-preview" id="predictionPreview"></div>
+            </div>
+        </div>
+
         <!-- ═══════ МОДАЛЬНОЕ ОКНО АЧИВОК ═══════ -->
         <div id="achModal" class="modal-overlay">
             <div class="modal-content">
@@ -154,6 +189,10 @@
             <button class="nav-btn" onclick="showTab('leaderboard'); loadLeaderboard();">
                 <span class="nav-icon">📊</span>
                 <span class="nav-label">Топ</span>
+            </button>
+            <button class="nav-btn" onclick="showTab('shop')">
+                <span class="nav-icon">💎</span>
+                <span class="nav-label">ЦУМ</span>
             </button>
         </div>
     </div>
