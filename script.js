@@ -27,7 +27,6 @@ let stockHistory = [];
 const MAX_HISTORY = 30;
 
 let userId = localStorage.getItem("depositBattleUserId");
-
 if (!userId) {
     userId = "guest_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     localStorage.setItem("depositBattleUserId", userId);
@@ -43,9 +42,7 @@ const RANKS = [
 
 function getRank(totalAssets) {
     for (let i = RANKS.length - 1; i >= 0; i--) {
-        if (totalAssets >= RANKS[i].min) {
-            return RANKS[i];
-        }
+        if (totalAssets >= RANKS[i].min) return RANKS[i];
     }
     return RANKS[0];
 }
@@ -98,39 +95,27 @@ function getRandomEvent() {
 }
 
 function showTab(tabName) {
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     
     document.getElementById('tab-' + tabName).classList.add('active');
-    event.target.classList.add('active');
+    event.currentTarget.classList.add('active');
 }
 
 const tg = window.Telegram?.WebApp;
-
 let userName = "Игрок";
 
 if (tg) {
     tg.ready();
     tg.expand();
-
     const user = tg.initDataUnsafe?.user;
     if (user) {
         userId = String(user.id);
         userName = user.first_name || "Игрок";
     }
-
-    tg.MainButton.setText("💾 Сохранить прогресс");
+    tg.MainButton.setText("💾 Сохранить");
     tg.MainButton.show();
-
-    tg.MainButton.onClick(() => {
-        saveProgress();
-        tg.showAlert("Прогресс сохранён!");
-    });
+    tg.MainButton.onClick(() => { saveProgress(); tg.showAlert("Сохранено!"); });
 }
 
 const money = document.getElementById("money");
@@ -144,8 +129,10 @@ const restartButton = document.getElementById("restartButton");
 const news = document.getElementById("news");
 const userNameText = document.getElementById("userName");
 const userRankText = document.getElementById("userRank");
+const heroAvatar = document.getElementById("heroAvatar");
 const loginStreakText = document.getElementById("loginStreak");
-const dailyBonusText = document.getElementById("dailyBonus");
+const achCountText = document.getElementById("achCount");
+const achievementsPreview = document.getElementById("achievementsPreview");
 
 const cryptoText = document.getElementById("crypto");
 const cryptoPriceText = document.getElementById("cryptoPrice");
@@ -160,14 +147,13 @@ const buyStockButton = document.getElementById("buyStockButton");
 const sellStockButton = document.getElementById("sellStockButton");
 
 const refreshLeaderboardBtn = document.getElementById("refreshLeaderboard");
-
 const workButton = document.getElementById("workButton");
 const workTimer = document.getElementById("workTimer");
 
 let cryptoChart = null;
 let stockChart = null;
 
-if (userNameText) userNameText.textContent = "👤 " + userName;
+if (userNameText) userNameText.textContent = userName;
 
 function addNews(text) {
     if (news) news.textContent = text;
@@ -178,55 +164,73 @@ function updateRank() {
     const rank = getRank(totalAssets);
     
     if (userRankText) {
-        userRankText.textContent = `${rank.icon} ${rank.name}`;
+        userRankText.textContent = rank.name;
         userRankText.style.color = rank.color;
-        userRankText.style.borderColor = rank.color;
     }
+    if (heroAvatar) heroAvatar.textContent = rank.icon;
+}
+
+function updateAchPreview() {
+    if (!achievementsPreview) return;
+    
+    if (achievements.length === 0) {
+        achievementsPreview.innerHTML = '<div class="ach-preview-empty">Пока нет ачивок</div>';
+        return;
+    }
+    
+    let html = '';
+    const recent = achievements.slice(-3).reverse();
+    recent.forEach(id => {
+        const ach = ALL_ACHIEVEMENTS.find(a => a.id === id);
+        if (ach) {
+            html += `
+                <div class="ach-preview-item">
+                    <div class="ach-preview-icon">${ach.icon}</div>
+                    <div class="ach-preview-name">${ach.name}</div>
+                </div>
+            `;
+        }
+    });
+    achievementsPreview.innerHTML = html;
 }
 
 function updateScreen() {
     if (money) money.textContent = balance.toLocaleString("ru-RU") + " ₽";
-    if (depositText) depositText.textContent = "🏦 Депозит: " + deposit.toLocaleString("ru-RU") + " ₽";
-    if (dayText) dayText.textContent = "📅 День: " + day;
-    if (loginStreakText) loginStreakText.textContent = "🔥 Серия: " + loginStreak + " дней";
+    if (depositText) depositText.textContent = deposit.toLocaleString("ru-RU") + " ₽";
+    if (dayText) dayText.textContent = day;
+    if (loginStreakText) loginStreakText.textContent = loginStreak;
+    if (achCountText) achCountText.textContent = achievements.length + "/" + ALL_ACHIEVEMENTS.length;
     
-    if (cryptoText) cryptoText.textContent = "₿ Крипта: " + crypto + " ₿";
-    if (cryptoPriceText) cryptoPriceText.textContent = "💰 Цена: " + cryptoPrice.toLocaleString("ru-RU") + " ₽ за 1 ₿";
-    if (stocksText) stocksText.textContent = "📈 Акции: " + stocks + " шт.";
-    if (stockPriceText) stockPriceText.textContent = "💰 Цена: " + stockPrice.toLocaleString("ru-RU") + " ₽ за 1 акцию";
+    if (cryptoText) cryptoText.textContent = crypto + " ₿";
+    if (cryptoPriceText) cryptoPriceText.textContent = cryptoPrice.toLocaleString("ru-RU") + " ₽";
+    if (stocksText) stocksText.textContent = stocks + " шт.";
+    if (stockPriceText) stockPriceText.textContent = stockPrice.toLocaleString("ru-RU") + " ₽";
     
     updateRank();
+    updateAchPreview();
 }
 
 function initHistory() {
-    while (cryptoHistory.length < MAX_HISTORY) {
-        cryptoHistory.push(cryptoPrice);
-    }
-    while (stockHistory.length < MAX_HISTORY) {
-        stockHistory.push(stockPrice);
-    }
+    while (cryptoHistory.length < MAX_HISTORY) cryptoHistory.push(cryptoPrice);
+    while (stockHistory.length < MAX_HISTORY) stockHistory.push(stockPrice);
 }
 
 function updateHistory() {
     cryptoHistory.push(cryptoPrice);
     if (cryptoHistory.length > MAX_HISTORY) cryptoHistory.shift();
-    
     stockHistory.push(stockPrice);
     if (stockHistory.length > MAX_HISTORY) stockHistory.shift();
 }
 
 function getChartLabels() {
     const labels = [];
-    for (let i = 1; i <= MAX_HISTORY; i++) {
-        labels.push('День ' + (day - MAX_HISTORY + i));
-    }
+    for (let i = 1; i <= MAX_HISTORY; i++) labels.push('Д' + (day - MAX_HISTORY + i));
     return labels;
 }
 
 function initCharts() {
     const cryptoCtx = document.getElementById('cryptoChart');
     const stockCtx = document.getElementById('stockChart');
-    
     if (!cryptoCtx || !stockCtx) return;
     
     const commonOptions = {
@@ -241,109 +245,46 @@ function initCharts() {
                 borderColor: '#1a3a42',
                 borderWidth: 1,
                 displayColors: false,
-                callbacks: {
-                    label: function(context) {
-                        return context.parsed.y.toLocaleString('ru-RU') + ' ₽';
-                    }
-                }
+                callbacks: { label: (ctx) => ctx.parsed.y.toLocaleString('ru-RU') + ' ₽' }
             }
         },
         scales: {
-            x: {
-                display: false,
-                grid: { display: false }
-            },
+            x: { display: false, grid: { display: false } },
             y: {
                 display: true,
-                grid: {
-                    color: 'rgba(26, 58, 66, 0.3)',
-                    drawBorder: false
-                },
-                ticks: {
-                    color: '#3d6b70',
-                    font: { size: 10 },
-                    callback: function(value) {
-                        return (value / 1000).toFixed(0) + 'k';
-                    }
-                }
+                grid: { color: 'rgba(26, 58, 66, 0.3)', drawBorder: false },
+                ticks: { color: '#3d6b70', font: { size: 10 }, callback: (v) => (v/1000).toFixed(0) + 'k' }
             }
         },
-        elements: {
-            point: { radius: 0, hoverRadius: 4 },
-            line: { tension: 0.4, borderWidth: 2 }
-        },
-        interaction: {
-            intersect: false,
-            mode: 'index'
-        }
+        elements: { point: { radius: 0, hoverRadius: 4 }, line: { tension: 0.4, borderWidth: 2 } },
+        interaction: { intersect: false, mode: 'index' }
     };
     
     cryptoChart = new Chart(cryptoCtx, {
         type: 'line',
         data: {
             labels: getChartLabels(),
-            datasets: [{
-                label: 'Крипта',
-                data: cryptoHistory,
-                borderColor: '#3db8c4',
-                backgroundColor: 'rgba(61, 184, 196, 0.1)',
-                fill: true,
-                borderWidth: 2
-            }]
+            datasets: [{ data: cryptoHistory, borderColor: '#3db8c4', backgroundColor: 'rgba(61, 184, 196, 0.1)', fill: true, borderWidth: 2 }]
         },
-        options: {
-            ...commonOptions,
-            plugins: {
-                ...commonOptions.plugins,
-                title: {
-                    display: true,
-                    text: '₿ Крипта — 30 дней',
-                    color: '#6a9a9e',
-                    font: { size: 12, weight: '600' },
-                    padding: { bottom: 10 }
-                }
-            }
-        }
+        options: commonOptions
     });
     
     stockChart = new Chart(stockCtx, {
         type: 'line',
         data: {
             labels: getChartLabels(),
-            datasets: [{
-                label: 'Акции',
-                data: stockHistory,
-                borderColor: '#2a8a9a',
-                backgroundColor: 'rgba(42, 138, 154, 0.1)',
-                fill: true,
-                borderWidth: 2
-            }]
+            datasets: [{ data: stockHistory, borderColor: '#2a8a9a', backgroundColor: 'rgba(42, 138, 154, 0.1)', fill: true, borderWidth: 2 }]
         },
-        options: {
-            ...commonOptions,
-            plugins: {
-                ...commonOptions.plugins,
-                title: {
-                    display: true,
-                    text: '📈 Акции — 30 дней',
-                    color: '#6a9a9e',
-                    font: { size: 12, weight: '600' },
-                    padding: { bottom: 10 }
-                }
-            }
-        }
+        options: commonOptions
     });
 }
 
 function updateCharts() {
     if (!cryptoChart || !stockChart) return;
-    
     const labels = getChartLabels();
-    
     cryptoChart.data.labels = labels;
     cryptoChart.data.datasets[0].data = cryptoHistory;
     cryptoChart.update('none');
-    
     stockChart.data.labels = labels;
     stockChart.data.datasets[0].data = stockHistory;
     stockChart.update('none');
@@ -351,46 +292,27 @@ function updateCharts() {
 
 function checkDailyBonus() {
     const today = new Date().toDateString();
-    
-    if (lastLoginDate === today) {
-        if (dailyBonusText) {
-            dailyBonusText.innerHTML = "✅ Бонус сегодня получен!<br>🔥 Серия: " + loginStreak + "/7";
-        }
-        return;
-    }
+    if (lastLoginDate === today) return;
     
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     
-    if (lastLoginDate === yesterday.toDateString()) {
-        loginStreak++;
-    } else {
-        loginStreak = 1;
-    }
+    if (lastLoginDate === yesterday.toDateString()) loginStreak++;
+    else loginStreak = 1;
     
     lastLoginDate = today;
     
-    let bonusCrypto = 1;
-    let bonusStocks = 10;
-    let bonusText = "🎁 Ежедневный бонус: +1 ₿ и +10 акций!";
-    
+    let bonusCrypto = 1, bonusStocks = 10, bonusText = "🎁 +1 ₿ и +10 акций!";
     if (loginStreak >= 7) {
-        bonusCrypto = 5;
-        bonusStocks = 50;
-        bonusText = "🔥 Супер-бонус за 7 дней! +5 ₿ и +50 акций!";
+        bonusCrypto = 5; bonusStocks = 50;
+        bonusText = "🔥 Супер-бонус! +5 ₿ и +50 акций!";
         loginStreak = 0;
     }
     
     crypto += bonusCrypto;
     stocks += bonusStocks;
-    
     updateScreen();
     addNews(bonusText);
-    
-    if (dailyBonusText) {
-        dailyBonusText.innerHTML = bonusText + "<br>🔥 Серия: " + loginStreak + "/7";
-    }
-    
     saveProgress();
 }
 
@@ -398,77 +320,31 @@ function checkAchievements() {
     const newAchievements = [];
     const totalAssets = balance + deposit + (crypto * cryptoPrice) + (stocks * stockPrice);
     
-    if (deposit >= 1000000 && !achievements.includes("banker")) {
-        newAchievements.push("banker");
-    }
-    if (crypto >= 100 && !achievements.includes("whale")) {
-        newAchievements.push("whale");
-    }
-    if (stocks >= 1000 && !achievements.includes("broker")) {
-        newAchievements.push("broker");
-    }
-    if (totalAssets >= 1000000 && !achievements.includes("millionaire")) {
-        newAchievements.push("millionaire");
-    }
-    if (positiveStreak >= 10 && !achievements.includes("lucky")) {
-        newAchievements.push("lucky");
-    }
-    if (day >= 365 && !achievements.includes("veteran")) {
-        newAchievements.push("veteran");
-    }
-    if (tradeCount >= 50 && !achievements.includes("trader")) {
-        newAchievements.push("trader");
-    }
-    if (cryptoHoldDays >= 30 && !achievements.includes("hodler")) {
-        newAchievements.push("hodler");
-    }
+    if (deposit >= 1000000 && !achievements.includes("banker")) newAchievements.push("banker");
+    if (crypto >= 100 && !achievements.includes("whale")) newAchievements.push("whale");
+    if (stocks >= 1000 && !achievements.includes("broker")) newAchievements.push("broker");
+    if (totalAssets >= 1000000 && !achievements.includes("millionaire")) newAchievements.push("millionaire");
+    if (positiveStreak >= 10 && !achievements.includes("lucky")) newAchievements.push("lucky");
+    if (day >= 365 && !achievements.includes("veteran")) newAchievements.push("veteran");
+    if (tradeCount >= 50 && !achievements.includes("trader")) newAchievements.push("trader");
+    if (cryptoHoldDays >= 30 && !achievements.includes("hodler")) newAchievements.push("hodler");
     
     if (newAchievements.length > 0) {
         achievements.push(...newAchievements);
         showAchievementUnlock(newAchievements);
         saveProgress();
     }
-    
-    renderAchievements();
+    updateAchPreview();
 }
 
 function showAchievementUnlock(newIds) {
     newIds.forEach(id => {
         const ach = ALL_ACHIEVEMENTS.find(a => a.id === id);
         if (ach) {
-            addNews(`🏆 Новая ачивка: ${ach.icon} ${ach.name}!`);
-            if (tg?.showAlert) {
-                tg.showAlert(`🏆 Ачивка разблокирована!\n\n${ach.icon} ${ach.name}\n${ach.desc}`);
-            }
+            addNews(`🏆 ${ach.icon} ${ach.name}!`);
+            if (tg?.showAlert) tg.showAlert(`🏆 ${ach.icon} ${ach.name}\n${ach.desc}`);
         }
     });
-}
-
-function renderAchievements() {
-    const list = document.getElementById("achievementsList");
-    if (!list) return;
-    
-    let html = "";
-    
-    ALL_ACHIEVEMENTS.forEach(ach => {
-        const unlocked = achievements.includes(ach.id);
-        const status = unlocked ? "✅" : "🔒";
-        const opacity = unlocked ? "1" : "0.5";
-        
-        html += `
-            <div class="achievement-item" style="opacity: ${opacity}">
-                <div class="achievement-icon">${ach.icon}</div>
-                <div class="achievement-info">
-                    <div class="achievement-name">${status} ${ach.name}</div>
-                    <div class="achievement-desc">${ach.desc}</div>
-                </div>
-            </div>
-        `;
-    });
-    
-    html += `<div class="achievement-count">Разблокировано: ${achievements.length}/${ALL_ACHIEVEMENTS.length}</div>`;
-    
-    list.innerHTML = html;
 }
 
 async function loadProgress() {
@@ -495,11 +371,10 @@ async function loadProgress() {
         updateScreen();
         initCharts();
         checkDailyBonus();
-        checkAchievements();
         addNews("✅ Прогресс загружен");
     } catch (error) {
         console.error(error);
-        addNews("⚠️ Не удалось загрузить прогресс");
+        addNews("⚠️ Новая игра");
         initHistory();
         initCharts();
     }
@@ -509,363 +384,226 @@ async function saveProgress() {
     try {
         await fetch(`/api/save/${userId}`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                balance,
-                deposit,
-                day,
-                crypto,
-                stocks,
-                cryptoPrice,
-                stockPrice,
-                userName: userName,
-                achievements,
-                lastLoginDate,
-                loginStreak,
-                tradeCount,
-                cryptoHoldDays,
-                cryptoHistory,
-                stockHistory
+                balance, deposit, day, crypto, stocks, cryptoPrice, stockPrice,
+                userName, achievements, lastLoginDate, loginStreak,
+                tradeCount, cryptoHoldDays, cryptoHistory, stockHistory
             })
         });
     } catch (error) {
         console.error(error);
-        addNews("⚠️ Не удалось сохранить прогресс");
     }
 }
 
 async function loadLeaderboard() {
-    const leaderboardList = document.getElementById("leaderboardList");
-    if (!leaderboardList) return;
-    
-    leaderboardList.innerHTML = '<div class="loading">Загрузка...</div>';
+    const list = document.getElementById("leaderboardList");
+    if (!list) return;
+    list.innerHTML = '<div class="loading">Загрузка...</div>';
     
     try {
         const response = await fetch("/api/leaderboard");
         const leaders = await response.json();
         
         if (leaders.length === 0) {
-            leaderboardList.innerHTML = '<div class="empty">Пока никто не играл 😢</div>';
+            list.innerHTML = '<div class="empty">Пока никто не играл</div>';
             return;
         }
         
         let html = '';
         leaders.forEach((leader, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '•';
-            const profitColor = leader.profit >= 0 ? 'profit-positive' : 'profit-negative';
-            const profitSign = leader.profit >= 0 ? '+' : '';
-            const achStars = '⭐'.repeat(leader.achievements || 0);
-            
+            const color = leader.profit >= 0 ? 'profit-positive' : 'profit-negative';
+            const sign = leader.profit >= 0 ? '+' : '';
             html += `
                 <div class="leader-item">
-                    <div class="leader-rank">${medal} ${index + 1}</div>
+                    <div class="leader-rank">${medal}</div>
                     <div class="leader-info">
                         <div class="leader-name">${leader.userName}</div>
-                        <div class="leader-days">📅 ${leader.day} дней ${achStars}</div>
+                        <div class="leader-days">📅 ${leader.day} дней</div>
                     </div>
-                    <div class="leader-profit ${profitColor}">
-                        ${profitSign}${leader.profit.toLocaleString("ru-RU")} ₽
-                    </div>
+                    <div class="leader-profit ${color}">${sign}${leader.profit.toLocaleString("ru-RU")} ₽</div>
                 </div>
             `;
         });
-        
-        leaderboardList.innerHTML = html;
+        list.innerHTML = html;
     } catch (error) {
-        console.error(error);
-        leaderboardList.innerHTML = '<div class="error">Ошибка загрузки 😢</div>';
+        list.innerHTML = '<div class="error">Ошибка</div>';
     }
 }
 
+// ═══════ ОБРАБОТЧИКИ ═══════
+
 if (depositButton) {
     depositButton.onclick = async function () {
-        if (!depositInput) return;
-        const amount = Number(depositInput.value);
-        if (amount <= 0) {
-            tg ? tg.showAlert("Введите сумму больше 0") : alert("Введите сумму больше 0");
-            return;
-        }
+        const amount = Number(depositInput?.value);
+        if (amount <= 0) { tg?.showAlert("Введите сумму > 0"); return; }
         if (balance >= amount) {
-            balance -= amount;
-            deposit += amount;
+            balance -= amount; deposit += amount;
             depositInput.value = "";
-            updateScreen();
-            checkAchievements();
-            addNews("🏦 Вы положили " + amount.toLocaleString("ru-RU") + " ₽ на депозит");
+            updateScreen(); checkAchievements();
+            addNews("🏦 +"+amount.toLocaleString("ru-RU")+" ₽ на депозит");
             await saveProgress();
-        } else {
-            tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
-        }
+        } else { tg?.showAlert("Недостаточно"); }
     };
 }
 
 if (withdrawButton) {
     withdrawButton.onclick = async function () {
-        if (!depositInput) return;
-        const amount = Number(depositInput.value);
-        if (amount <= 0) {
-            tg ? tg.showAlert("Введите сумму больше 0") : alert("Введите сумму больше 0");
-            return;
-        }
+        const amount = Number(depositInput?.value);
+        if (amount <= 0) { tg?.showAlert("Введите сумму > 0"); return; }
         if (deposit >= amount) {
-            deposit -= amount;
-            balance += amount;
+            deposit -= amount; balance += amount;
             depositInput.value = "";
             updateScreen();
-            addNews("🏦 Вы сняли " + amount.toLocaleString("ru-RU") + " ₽ с депозита");
+            addNews("🏦 Снято "+amount.toLocaleString("ru-RU")+" ₽");
             await saveProgress();
-        } else {
-            tg ? tg.showAlert("Недостаточно денег на депозите") : alert("Недостаточно денег на депозите");
-        }
+        } else { tg?.showAlert("Недостаточно"); }
     };
 }
 
 if (buyCryptoButton) {
     buyCryptoButton.onclick = async function () {
-        if (!cryptoInput) return;
-        const amount = Number(cryptoInput.value);
-        if (amount <= 0) {
-            tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
-            return;
-        }
-        const totalCost = amount * cryptoPrice;
-        if (balance >= totalCost) {
-            balance -= totalCost;
-            crypto += amount;
-            tradeCount++;
+        const amount = Number(cryptoInput?.value);
+        if (amount <= 0) { tg?.showAlert("Введите количество > 0"); return; }
+        const cost = amount * cryptoPrice;
+        if (balance >= cost) {
+            balance -= cost; crypto += amount; tradeCount++;
             if (!hasCrypto) hasCrypto = true;
             cryptoInput.value = "";
-            updateScreen();
-            checkAchievements();
-            addNews("🚀 Вы купили " + amount + " ₿ за " + totalCost.toLocaleString("ru-RU") + " ₽");
+            updateScreen(); checkAchievements();
+            addNews("🚀 Куплено "+amount+" ₿");
             await saveProgress();
-        } else {
-            tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
-        }
+        } else { tg?.showAlert("Недостаточно"); }
     };
 }
 
 if (sellCryptoButton) {
     sellCryptoButton.onclick = async function () {
-        if (!cryptoInput) return;
-        const amount = Number(cryptoInput.value);
-        if (amount <= 0) {
-            tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
-            return;
-        }
+        const amount = Number(cryptoInput?.value);
+        if (amount <= 0) { tg?.showAlert("Введите количество > 0"); return; }
         if (crypto >= amount) {
-            const totalCost = amount * cryptoPrice;
-            balance += totalCost;
-            crypto -= amount;
-            tradeCount++;
+            const cost = amount * cryptoPrice;
+            balance += cost; crypto -= amount; tradeCount++;
             if (crypto === 0) hasCrypto = false;
             cryptoInput.value = "";
-            updateScreen();
-            checkAchievements();
-            addNews("💰 Вы продали " + amount + " ₿ за " + totalCost.toLocaleString("ru-RU") + " ₽");
+            updateScreen(); checkAchievements();
+            addNews("💰 Продано "+amount+" ₿");
             await saveProgress();
-        } else {
-            tg ? tg.showAlert("Недостаточно криптовалюты") : alert("Недостаточно криптовалюты");
-        }
+        } else { tg?.showAlert("Недостаточно"); }
     };
 }
 
 if (buyStockButton) {
     buyStockButton.onclick = async function () {
-        if (!stockInput) return;
-        const amount = Number(stockInput.value);
-        if (amount <= 0) {
-            tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
-            return;
-        }
-        const totalCost = amount * stockPrice;
-        if (balance >= totalCost) {
-            balance -= totalCost;
-            stocks += amount;
-            tradeCount++;
+        const amount = Number(stockInput?.value);
+        if (amount <= 0) { tg?.showAlert("Введите количество > 0"); return; }
+        const cost = amount * stockPrice;
+        if (balance >= cost) {
+            balance -= cost; stocks += amount; tradeCount++;
             stockInput.value = "";
-            updateScreen();
-            checkAchievements();
-            addNews("📈 Вы купили " + amount + " акций за " + totalCost.toLocaleString("ru-RU") + " ₽");
+            updateScreen(); checkAchievements();
+            addNews("📈 Куплено "+amount+" акций");
             await saveProgress();
-        } else {
-            tg ? tg.showAlert("Недостаточно денег") : alert("Недостаточно денег");
-        }
+        } else { tg?.showAlert("Недостаточно"); }
     };
 }
 
 if (sellStockButton) {
     sellStockButton.onclick = async function () {
-        if (!stockInput) return;
-        const amount = Number(stockInput.value);
-        if (amount <= 0) {
-            tg ? tg.showAlert("Введите количество больше 0") : alert("Введите количество больше 0");
-            return;
-        }
+        const amount = Number(stockInput?.value);
+        if (amount <= 0) { tg?.showAlert("Введите количество > 0"); return; }
         if (stocks >= amount) {
-            const totalCost = amount * stockPrice;
-            balance += totalCost;
-            stocks -= amount;
-            tradeCount++;
+            const cost = amount * stockPrice;
+            balance += cost; stocks -= amount; tradeCount++;
             stockInput.value = "";
-            updateScreen();
-            checkAchievements();
-            addNews("💰 Вы продали " + amount + " акций за " + totalCost.toLocaleString("ru-RU") + " ₽");
+            updateScreen(); checkAchievements();
+            addNews("💰 Продано "+amount+" акций");
             await saveProgress();
-        } else {
-            tg ? tg.showAlert("Недостаточно акций") : alert("Недостаточно акций");
-        }
+        } else { tg?.showAlert("Недостаточно"); }
     };
 }
 
 let workCooldown = false;
-const WORK_COOLDOWN_MS = 30000;
-const WORK_SALARY = 5000;
-
 if (workButton) {
     workButton.onclick = async function () {
-        if (workCooldown) {
-            tg ? tg.showAlert("Подождите окончания перерыва!") : alert("Подождите окончания перерыва!");
-            return;
-        }
-
-        balance += WORK_SALARY;
+        if (workCooldown) { tg?.showAlert("Подождите!"); return; }
+        balance += 5000;
         updateScreen();
-        addNews("💼 Вы поработали на дядю и заработали " + WORK_SALARY.toLocaleString("ru-RU") + " ₽");
-
+        addNews("💼 +5 000 ₽ за работу");
         workCooldown = true;
         workButton.disabled = true;
         workButton.textContent = "Перерыв...";
-
-        let remaining = WORK_COOLDOWN_MS / 1000;
-
-        const timerInterval = setInterval(() => {
+        let remaining = 30;
+        const timer = setInterval(() => {
             remaining--;
-            if (workTimer) {
-                workTimer.textContent = `⏱️ Осталось: ${remaining} сек`;
-            }
-
+            if (workTimer) workTimer.textContent = `⏱️ ${remaining}сек`;
             if (remaining <= 0) {
-                clearInterval(timerInterval);
+                clearInterval(timer);
                 workCooldown = false;
                 workButton.disabled = false;
                 workButton.textContent = "Работать";
                 if (workTimer) workTimer.textContent = "";
             }
         }, 1000);
-
         await saveProgress();
-
-        if (tg?.HapticFeedback) {
-            tg.HapticFeedback.notificationOccurred("success");
-        }
+        if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
     };
 }
 
 let nextDayCooldown = false;
-
 if (nextDayButton) {
     nextDayButton.onclick = async function () {
-        if (nextDayCooldown) {
-            tg ? tg.showAlert("Подождите 3 секунды!") : alert("Подождите 3 секунды!");
-            return;
-        }
-
+        if (nextDayCooldown) { tg?.showAlert("Подождите 3 сек!"); return; }
         nextDayCooldown = true;
         nextDayButton.style.opacity = "0.5";
         nextDayButton.style.pointerEvents = "none";
-        nextDayButton.textContent = "Подождите...";
-
+        nextDayButton.textContent = "⏳...";
+        
         day++;
-
-        const percent = 0.01;
-        const income = Math.floor(deposit * percent);
-        deposit += income;
-
+        deposit += Math.floor(deposit * 0.01);
         const event = getRandomEvent();
-
-        if (event.crypto > 1.0) positiveStreak++;
-        else positiveStreak = 0;
-
+        if (event.crypto > 1.0) positiveStreak++; else positiveStreak = 0;
         cryptoPrice = Math.max(1000, Math.floor(cryptoPrice * event.crypto));
         stockPrice = Math.max(50, Math.floor(stockPrice * event.stock));
-
-        if (hasCrypto) {
-            cryptoHoldDays++;
-        }
-
+        if (hasCrypto) cryptoHoldDays++;
+        
         updateHistory();
         updateScreen();
         updateCharts();
-
-        let newsText = event.text + "<br>💸 Доход по депозиту: " + income.toLocaleString("ru-RU") + " ₽";
         
-        if (event.crypto !== 1.0) {
-            const cryptoPercent = Math.round((event.crypto - 1) * 100);
-            newsText += "<br>₿ Крипта: " + (cryptoPercent > 0 ? "📈 +" : "📉 ") + cryptoPercent + "%";
-        }
+        let text = event.text;
+        if (event.crypto !== 1.0) text += " | ₿: " + Math.round((event.crypto-1)*100) + "%";
+        if (event.stock !== 1.0) text += " | 📈: " + Math.round((event.stock-1)*100) + "%";
+        addNews(text);
         
-        if (event.stock !== 1.0) {
-            const stockPercent = Math.round((event.stock - 1) * 100);
-            newsText += "<br>📈 Акции: " + (stockPercent > 0 ? "📈 +" : "📉 ") + stockPercent + "%";
-        }
-
-        if (news) news.innerHTML = newsText;
-
         checkAchievements();
-
         await saveProgress();
-
-        if (tg?.HapticFeedback) {
-            tg.HapticFeedback.notificationOccurred("success");
-        }
-
+        
         setTimeout(() => {
             nextDayCooldown = false;
             nextDayButton.style.opacity = "1";
             nextDayButton.style.pointerEvents = "auto";
-            nextDayButton.textContent = "Следующий день";
+            nextDayButton.textContent = "➡️ Следующий день";
         }, 3000);
     };
 }
 
 if (restartButton) {
     restartButton.onclick = async function () {
-        const confirmed = tg ? confirm("Точно начать заново? Весь прогресс будет потерян!") : confirm("Точно начать заново? Весь прогресс будет потерян!");
-        if (!confirmed) return;
-
-        balance = INITIAL_BALANCE;
-        deposit = INITIAL_DEPOSIT;
-        day = INITIAL_DAY;
-        crypto = INITIAL_CRYPTO;
-        stocks = INITIAL_STOCKS;
-        cryptoPrice = INITIAL_CRYPTO_PRICE;
-        stockPrice = INITIAL_STOCK_PRICE;
-        achievements = [];
-        lastLoginDate = null;
-        loginStreak = 0;
-        tradeCount = 0;
-        cryptoHoldDays = 0;
-        hasCrypto = false;
-        cryptoHistory = [];
-        stockHistory = [];
-
-        initHistory();
-        updateScreen();
-        updateCharts();
-        addNews("🔄 Игра начата заново! Удачи!");
+        if (!confirm("Начать заново?")) return;
+        balance = INITIAL_BALANCE; deposit = INITIAL_DEPOSIT; day = INITIAL_DAY;
+        crypto = INITIAL_CRYPTO; stocks = INITIAL_STOCKS;
+        cryptoPrice = INITIAL_CRYPTO_PRICE; stockPrice = INITIAL_STOCK_PRICE;
+        achievements = []; lastLoginDate = null; loginStreak = 0;
+        tradeCount = 0; cryptoHoldDays = 0; hasCrypto = false;
+        cryptoHistory = []; stockHistory = [];
+        initHistory(); updateScreen(); updateCharts();
+        addNews("🔄 Рестарт!");
         await saveProgress();
-
-        if (tg?.HapticFeedback) {
-            tg.HapticFeedback.notificationOccurred("warning");
-        }
     };
 }
 
-if (refreshLeaderboardBtn) {
-    refreshLeaderboardBtn.onclick = loadLeaderboard;
-}
+if (refreshLeaderboardBtn) refreshLeaderboardBtn.onclick = loadLeaderboard;
 
 loadProgress();

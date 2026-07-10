@@ -9,68 +9,83 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-    <div class="bg-decoration">
-        <div class="coin"></div>
-        <div class="coin"></div>
-        <div class="coin"></div>
-    </div>
-
     <div class="game">
-        <div class="card header-card">
-            <h1>💰 Deposit Battle</h1>
-            <div class="user-info">
-                <p id="userName">Игрок</p>
-                <span id="userRank" class="rank-badge">🥚 Бомж</span>
+        <!-- ═══════ ГЛАВНЫЙ ЭКРАН (ПЕРСОНАЖ + БАЛАНС + ДЕЙ) ═══════ -->
+        <div id="tab-main" class="tab-content active">
+            <div class="hero-card">
+                <div class="hero-avatar" id="heroAvatar">🥚</div>
+                <div class="hero-rank" id="userRank">Бомж</div>
+                <div class="hero-name" id="userName">Игрок</div>
+            </div>
+
+            <div class="main-balance">
+                <div class="balance-label">💰 Баланс</div>
+                <div class="balance-amount" id="money">35 000 ₽</div>
+            </div>
+
+            <div class="main-stats">
+                <div class="stat-item">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-value" id="day">1</div>
+                    <div class="stat-label">День</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-value" id="loginStreak">0</div>
+                    <div class="stat-label">Серия</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="achCount">0/8</div>
+                    <div class="stat-label">Ачивки</div>
+                </div>
+            </div>
+
+            <button id="nextDayButton" class="main-action-btn">➡️ Следующий день</button>
+
+            <div class="achievements-preview">
+                <h3>🏆 Последние ачивки</h3>
+                <div id="achievementsPreview" class="ach-preview-list">
+                    <div class="ach-preview-empty">Пока нет ачивок</div>
+                </div>
             </div>
         </div>
 
-        <div class="tabs">
-            <button class="tab-button active" onclick="showTab('profile')">👤 Профиль</button>
-            <button class="tab-button" onclick="showTab('work')">💼 Работа</button>
-            <button class="tab-button" onclick="showTab('achievements'); checkAchievements();">🏆 Ачивки</button>
-            <button class="tab-button" onclick="showTab('leaderboard'); loadLeaderboard();">📊 Топ</button>
-        </div>
-
-        <div id="tab-profile" class="tab-content active">
-            <div class="card">
-                <h2>Баланс</h2>
-                <div id="money">35 000 ₽</div>
+        <!-- ═══════ ВКЛАДКА РАБОТА (КРИПТА + АКЦИИ + РАБОТА + ДЕПОЗИТ) ═══════ -->
+        <div id="tab-work" class="tab-content">
+            <div class="section-title">💼 Работа</div>
+            
+            <div class="card work-card">
+                <div class="work-avatar">👷</div>
+                <div class="work-info">
+                    <div class="work-title">Работа на дядю</div>
+                    <div class="work-salary">+5 000 ₽ за смену</div>
+                </div>
+                <button id="workButton">Работать</button>
+                <div id="workTimer" class="work-timer"></div>
             </div>
 
-            <div class="card">
-                <h2>Депозит</h2>
-                <div id="deposit">🏦 Депозит: 0 ₽</div>
-                <input id="depositInput" type="number" placeholder="Введите сумму" inputmode="numeric">
+            <div class="section-title">🏦 Депозит</div>
+            
+            <div class="card deposit-card">
+                <div class="deposit-balance" id="deposit">0 ₽</div>
+                <div class="deposit-rate">📈 1% в день</div>
+                <input id="depositInput" type="number" placeholder="Сумма" inputmode="numeric">
                 <div class="button-row">
                     <button id="depositButton">Положить</button>
                     <button id="withdrawButton">Снять</button>
                 </div>
             </div>
 
-            <div class="card">
-                <div id="day">📅 День: 1</div>
-                <div id="loginStreak">🔥 Серия: 0 дней</div>
-                <button id="nextDayButton">Следующий день</button>
-                <button id="restartButton" class="restart-btn">🔄 Рестарт</button>
-            </div>
-        </div>
-
-        <div id="tab-work" class="tab-content">
-            <div class="card work-card">
-                <h2>💼 Работа на дядю</h2>
-                <div class="work-info">
-                    <div class="work-salary">💰 Зарплата: <b>5 000 ₽</b> за смену</div>
-                    <div class="work-cooldown">⏱️ Перерыв: <b>30 сек</b></div>
+            <div class="section-title">💎 Криптовалюта</div>
+            
+            <div class="card asset-card">
+                <div class="asset-header">
+                    <div class="asset-icon">₿</div>
+                    <div class="asset-price" id="cryptoPrice">23 000 ₽</div>
                 </div>
-                <button id="workButton">Работать</button>
-                <div id="workTimer" class="work-timer"></div>
-            </div>
-
-            <div class="card">
-                <h2>Криптовалюта</h2>
-                <div id="crypto">₿ Крипта: 0 ₿</div>
-                <div id="cryptoPrice">💰 Цена: 23 000 ₽ за 1 ₿</div>
-                <input id="cryptoInput" type="number" placeholder="Сколько купить" inputmode="numeric">
+                <div class="asset-owned" id="crypto">0 ₿</div>
+                <input id="cryptoInput" type="number" placeholder="Количество" inputmode="numeric">
                 <div class="button-row">
                     <button id="buyCryptoButton">Купить</button>
                     <button id="sellCryptoButton">Продать</button>
@@ -80,11 +95,15 @@
                 </div>
             </div>
 
-            <div class="card">
-                <h2>Акции</h2>
-                <div id="stocks">📈 Акции: 0 шт.</div>
-                <div id="stockPrice">💰 Цена: 1 000 ₽ за 1 акцию</div>
-                <input id="stockInput" type="number" placeholder="Введите количество" inputmode="numeric">
+            <div class="section-title">📈 Акции</div>
+            
+            <div class="card asset-card">
+                <div class="asset-header">
+                    <div class="asset-icon">📊</div>
+                    <div class="asset-price" id="stockPrice">1 000 ₽</div>
+                </div>
+                <div class="asset-owned" id="stocks">0 шт.</div>
+                <input id="stockInput" type="number" placeholder="Количество" inputmode="numeric">
                 <div class="button-row">
                     <button id="buyStockButton">Купить</button>
                     <button id="sellStockButton">Продать</button>
@@ -95,37 +114,34 @@
             </div>
         </div>
 
-        <div id="tab-achievements" class="tab-content">
-            <div class="card">
-                <h2>🏆 Достижения</h2>
-                <div id="achievementsList" class="achievements-list">
-                    <div class="loading">Загрузка...</div>
-                </div>
-            </div>
-            <div class="card bonus-card">
-                <h2>🎁 Ежедневный бонус</h2>
-                <div id="dailyBonus">Зайди завтра за бонусом!</div>
-                <div class="bonus-info">
-                    <div class="bonus-item">📅 Каждый день: <b>+1 ₿</b> и <b>+10 акций</b></div>
-                    <div class="bonus-item">🔥 7 дней подряд: <b>+5 ₿</b> и <b>+50 акций</b></div>
-                </div>
-            </div>
-        </div>
-
+        <!-- ═══════ ВКЛАДКА ТОП ═══════ -->
         <div id="tab-leaderboard" class="tab-content">
-            <div class="card">
-                <h2>📊 Топ 10 трейдеров</h2>
-                <p class="subtitle">Кто больше заработал</p>
-                <div id="leaderboardList" class="leaderboard-list">
-                    <div class="loading">Загрузка...</div>
-                </div>
-                <button id="refreshLeaderboard" class="refresh-btn">🔄 Обновить</button>
+            <div class="section-title">📊 Топ трейдеров</div>
+            <div id="leaderboardList" class="leaderboard-list">
+                <div class="loading">Загрузка...</div>
             </div>
+            <button id="refreshLeaderboard" class="refresh-btn">🔄 Обновить</button>
         </div>
 
-        <div class="card">
-            <h2>Новости</h2>
-            <div id="news">📰 Добро пожаловать в игру!</div>
+        <!-- ═══════ НОВОСТИ (ВСЕГДА ВНИЗУ) ═══════ -->
+        <div class="news-bar">
+            <div id="news">📰 Добро пожаловать!</div>
+        </div>
+
+        <!-- ═══════ НИЖНЕЕ МЕНЮ ═══════ -->
+        <div class="bottom-nav">
+            <button class="nav-btn active" onclick="showTab('main')">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Главная</span>
+            </button>
+            <button class="nav-btn" onclick="showTab('work')">
+                <span class="nav-icon">💼</span>
+                <span class="nav-label">Работа</span>
+            </button>
+            <button class="nav-btn" onclick="showTab('leaderboard'); loadLeaderboard();">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Топ</span>
+            </button>
         </div>
     </div>
 
